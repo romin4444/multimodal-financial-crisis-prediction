@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package (core + dev, no heavy NLP)
+        run: |
+          python -m pip install --upgrade pip
+          # Install core runtime + test tooling. Heavy NLP extras (torch /
+          # transformers) are intentionally NOT installed in CI — NLP tests
+          # skip themselves via pytest.importorskip. This keeps CI fast.
+          pip install -e ".[dev]"
+
+      - name: Show environment
+        run: pip list
+
+      - name: Run test suite
+        run: pytest -q --tb=short
+
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install ruff
+        run: pip install ruff
+      - name: Ruff check (non-blocking)
+        run: ruff check src/ tests/ scripts/ || true

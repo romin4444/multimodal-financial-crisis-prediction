@@ -8,7 +8,6 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-import shap
 
 from src.logging_setup import get_logger
 from src.models.fusion import TrainedFusion
@@ -28,6 +27,13 @@ def run_shap(
         X: Feature DataFrame used for SHAP computation.
     """
     log.info("Computing SHAP attributions")
+    try:
+        import shap  # lazy — optional extra: pip install -e ".[explain]"
+    except ImportError:
+        log.warning("shap not installed — SHAP attribution skipped (pip install -e '.[explain]')")
+        fcols = trained.feature_cols
+        return {"by_crisis": {}}, pd.DataFrame(fusion[fcols].values, columns=fcols, index=fusion.index)
+
     fcols = trained.feature_cols
     X = pd.DataFrame(fusion[fcols].values, columns=fcols, index=fusion.index)
 

@@ -10,22 +10,28 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn.functional as F
 from tqdm.auto import tqdm
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from src.config import cfg
 from src.logging_setup import get_logger
+
+# NOTE: torch / transformers / vaderSentiment are imported LAZILY inside the
+# functions that need them. This lets the rest of the pipeline (synthetic
+# sentiment, aggregation) — and the whole test suite / CI — run without the
+# heavy ~2GB NLP stack installed. Install with: pip install -e ".[nlp]"
 
 log = get_logger("models.sentiment")
 
 _FB_CACHE = cfg.paths.cache_dir / "finbert_scores.csv"
 _FB_CKPT = cfg.paths.cache_dir / "fb_ckpt.npy"
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = cfg.finbert.batch_size_gpu if DEVICE.type == "cuda" else cfg.finbert.batch_size_cpu
+
+def _resolve_device():
+    """Lazily resolve torch device + batch size (requires torch)."""
+    import torch
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    batch = cfg.finbert.batch_size_gpu if device.type == "cuda" else cfg.finbert.batch_size_cpu
+    return device, batch
 
 
 # ─── FinBERT ─────────────────────────────────────────────────────────────────
@@ -45,8 +51,9 @@ def run_finbert(news_df: pd.DataFrame) -> pd.DataFrame:
         log.warning("No news data — FinBERT scores unavailable")
         return pd.DataFrame(columns=["date", "headline", "p_pos", "p_neg", "p_neu"])
 
-    log.info("Loading FinBERT", extra={"device": str(DEVICE), "batch_size": BATCH_SIZE})
-    tokenizer, model = _load_finbert()
+    device, batch_size = _resolve_device()
+    log.info("Loading FinBERT", extra={"device": str(device), "batch_size": batch_size})
+    tokenizer, model = _load_finbert(device)
     texts = news_df["headline"].tolist()
 
     all_probs: list = []
@@ -59,10 +66,10 @@ def run_finbert(news_df: pd.DataFrame) -> pd.DataFrame:
         log.info("Resuming FinBERT from checkpoint", extra={"resume_idx": start_idx})
 
     checkpoint_n = cfg.finbert.checkpoint_every_n
-    for i in tqdm(range(start_idx, len(texts), BATCH_SIZE), desc="FinBERT", unit="batch"):
-        batch = texts[i: i + BATCH_SIZE]
+    for i in tqdm(range(start_idx, len(texts), batch_size), desc="FinBERT", unit="batch"):
+        batch = texts[i: i + batch_size]
         try:
-            probs = _infer_batch(batch, tokenizer, model)
+            probs = _infer_batch(batch, tokenizer, model, device)
         except Exception as exc:
             log.warning("FinBERT batch failed — using uniform prior", extra={"batch_start": i, "error": str(exc)})
             probs = np.full((len(batch), 3), 1 / 3, dtype=np.float32)
@@ -133,6 +140,7 @@ def run_vader(news_df: pd.DataFrame, trading_index: pd.DatetimeIndex) -> pd.Data
         return pd.DataFrame(index=trading_index, columns=["vader_fear", "vader_comp"])
 
     log.info("Running VADER baseline")
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
     analyzer = SentimentIntensityAnalyzer()
     sc = news_df.copy()
     sc["vader_neg"] = sc["headline"].apply(lambda x: analyzer.polarity_scores(str(x))["neg"])
@@ -222,31 +230,35 @@ def merge_real_and_synthetic(
 
 # ─── Private ─────────────────────────────────────────────────────────────────
 
-def _load_finbert():
+def _load_finbert(device):
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
     tok = AutoTokenizer.from_pretrained(cfg.finbert.model_name)
     mdl = AutoModelForSequenceClassification.from_pretrained(cfg.finbert.model_name)
-    mdl = mdl.to(DEVICE).eval()
-    if DEVICE.type == "cuda":
+    mdl = mdl.to(device).eval()
+    if device.type == "cuda":
         mdl = mdl.half()
         log.info("FinBERT: FP16 mode on GPU")
     return tok, mdl
 
 
-@torch.no_grad()
-def _infer_batch(texts: list, tokenizer, model) -> np.ndarray:
-    enc = tokenizer(
-        texts,
-        padding=True,
-        truncation=True,
-        max_length=cfg.finbert.max_length,
-        return_tensors="pt",
-    )
-    enc = {k: v.to(DEVICE) for k, v in enc.items()}
-    logits = model(**enc).logits.float()
-    return F.softmax(logits, dim=-1).cpu().numpy()
+def _infer_batch(texts: list, tokenizer, model, device) -> np.ndarray:
+    import torch
+    import torch.nn.functional as F
+    with torch.no_grad():
+        enc = tokenizer(
+            texts,
+            padding=True,
+            truncation=True,
+            max_length=cfg.finbert.max_length,
+            return_tensors="pt",
+        )
+        enc = {k: v.to(device) for k, v in enc.items()}
+        logits = model(**enc).logits.float()
+        return F.softmax(logits, dim=-1).cpu().numpy()
 
 
 def _release_model(model) -> None:
+    import torch
     del model
     if torch.cuda.is_available():
         torch.cuda.empty_cache()

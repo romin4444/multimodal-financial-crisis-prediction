@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# requirements.lock — EXACT versions used to produce the reported results.
+# Author: Romin Patel
+#
+# This is a frozen snapshot for reproducibility (the numbers in docs/ and
+# outputs/ were generated against these versions on Python 3.12).
+# For flexible installs use requirements.txt or `pip install -e .`.
+#
+# Regenerate:  pip freeze > requirements.lock
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Core numerics ─────────────────────────────────────────────────────────────
+numpy==1.26.4
+pandas==2.2.1
+scipy==1.14.1
+
+# ── Time-series & statistics ──────────────────────────────────────────────────
+statsmodels==0.14.6
+arch==8.0.0
+
+# ── Machine learning ──────────────────────────────────────────────────────────
+scikit-learn==1.3.2
+hmmlearn==0.3.3
+joblib==1.1.1
+
+# ── Financial data ────────────────────────────────────────────────────────────
+yfinance==1.4.1
+requests==2.32.3
+
+# ── Config & validation ───────────────────────────────────────────────────────
+pydantic==2.12.5
+pydantic_core==2.41.5
+pydantic-settings==2.3.4
+PyYAML==6.0.1
+
+# ── Visualization ─────────────────────────────────────────────────────────────
+matplotlib==3.7.5
+seaborn==0.13.2
+
+# ── API serving ───────────────────────────────────────────────────────────────
+fastapi==0.135.3
+starlette==1.0.0
+uvicorn==0.44.0
+anyio==4.3.0
+httpx==0.27.0
+
+# ── Utilities & logging ───────────────────────────────────────────────────────
+tqdm==4.66.4
+python-json-logger==2.0.7
+
+# ── NLP extra (optional — pip install -e ".[nlp]") ────────────────────────────
+torch==2.3.1
+transformers==4.47.1
+tokenizers==0.21.0
+vaderSentiment==3.3.2
+
+# ── Explainability extra (optional — pip install -e ".[explain]") ─────────────
+shap==0.49.1
+
+# ── Test / dev ────────────────────────────────────────────────────────────────
+pytest==9.0.3
+pytest-asyncio==1.4.0

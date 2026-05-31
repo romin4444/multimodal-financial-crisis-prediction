@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fcps"
+version = "3.0.0"
+description = "Multimodal Financial Crisis Prediction System — leakage-free, walk-forward, modular pipeline (HMM + GARCH + FinBERT + SHAP) with crisis and stock-direction detection."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Romin Patel" }]
+keywords = ["finance", "machine-learning", "crisis-prediction", "hmm", "garch", "finbert", "walk-forward", "time-series"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Core runtime dependencies (enough to run the demo + v3 backtests + API + tests).
+# Heavy NLP/explainability deps are optional extras below.
+dependencies = [
+    "numpy>=1.24.0,<2.0.0",
+    "pandas>=2.0.0,<3.0.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "arch>=6.3.0",
+    "hmmlearn>=0.3.3",
+    "scikit-learn>=1.3.0",
+    "yfinance>=0.2.36",
+    "requests>=2.31.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "PyYAML>=6.0.0",
+    "joblib>=1.1.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.13.0",
+    "tqdm>=4.66.0",
+    "python-json-logger>=2.0.7",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+]
+
+[project.optional-dependencies]
+# Real-news sentiment pipeline (FinBERT). Large download (torch + transformers).
+nlp = [
+    "torch>=2.1.0",
+    "transformers>=4.38.0",
+    "vaderSentiment>=3.3.2",
+]
+# SHAP explainability.
+explain = ["shap>=0.44.0"]
+# Test + dev tooling.
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.26.0",
+    "ruff>=0.1.0",
+]
+# Everything.
+all = ["fcps[nlp,explain,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/romin4444/multimodal-financial-crisis-prediction"
+Repository = "https://github.com/romin4444/multimodal-financial-crisis-prediction"
+
+[project.scripts]
+fcps-demo = "scripts.demo_run:main"
+fcps-train = "scripts.train:main"
+fcps-serve = "scripts.serve:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "scripts*"]
+
+# NOTE: pytest configuration lives in pytest.ini (single source of truth) to
+# avoid a "two configs" conflict warning.
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

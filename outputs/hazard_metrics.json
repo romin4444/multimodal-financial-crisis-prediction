@@ -1,0 +1,37 @@
+{
+  "task": "discrete-time hazard: P(>=10% drawdown within N days)",
+  "drawdown_threshold": 0.1,
+  "n_onsets": 58,
+  "feature_cols": [
+    "vol_21d",
+    "vix",
+    "drawdown_63",
+    "mom_21d",
+    "yield_slope",
+    "yield_slope_chg_63",
+    "fedfunds_chg_126",
+    "oil_mom_63",
+    "xasset_corr",
+    "duration"
+  ],
+  "results": {
+    "h21": {
+      "n": 2660,
+      "n_onsets": 33,
+      "c_index": 0.839,
+      "horizon": 21,
+      "Nday_risk_brier": 0.3147,
+      "Nday_risk_brier_skill": -2.073,
+      "Nday_base_rate": 0.1158
+    },
+    "h63": {
+      "n": 2660,
+      "n_onsets": 33,
+      "c_index": 0.839,
+      "horizon": 63,
+      "Nday_risk_brier": 0.3716,
+      "Nday_risk_brier_skill": -1.0291,
+      "Nday_base_rate": 0.2414
+    }
+  }
+}

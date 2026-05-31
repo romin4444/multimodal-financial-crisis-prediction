@@ -1,0 +1,100 @@
+{
+  "task": "crisis (fwd 21d drawdown<=-10%) \u2014 advanced",
+  "label_summary": {
+    "n": 8814,
+    "n_positive": 346,
+    "base_rate": 0.0393
+  },
+  "feature_groups": {
+    "price": [
+      "vol_21d",
+      "vix",
+      "drawdown_63",
+      "mom_21d",
+      "mom_63d",
+      "vix_spike",
+      "vol_ratio"
+    ],
+    "macro_vix_orthogonal": [
+      "yield_slope",
+      "yield_slope_chg_63",
+      "fedfunds_chg_126",
+      "oil_mom_63",
+      "xasset_corr"
+    ],
+    "online_regime": [
+      "o_prob_volatile",
+      "o_prob_crisis"
+    ],
+    "real_sentiment": null
+  },
+  "walkforward": {
+    "min_train": 1260,
+    "step": 126,
+    "embargo": 21,
+    "horizon": 21
+  },
+  "metrics": {
+    "BASELINE VIX-threshold": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.1668,
+      "roc_auc": 0.7456,
+      "brier": 0.3581,
+      "brier_skill": -7.2696,
+      "ece": 0.4923,
+      "lift_top_decile": 3.8131
+    },
+    "LR price-only": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.147,
+      "roc_auc": 0.7493,
+      "brier": 0.1884,
+      "brier_skill": -3.3501,
+      "ece": 0.3153,
+      "lift_top_decile": 3.8429
+    },
+    "LR price+macro": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.0909,
+      "roc_auc": 0.5878,
+      "brier": 0.2069,
+      "brier_skill": -3.7781,
+      "ece": 0.3066,
+      "lift_top_decile": 2.8896
+    },
+    "LR price+macro+online": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.0781,
+      "roc_auc": 0.6211,
+      "brier": 0.1947,
+      "brier_skill": -3.4967,
+      "ece": 0.2594,
+      "lift_top_decile": 2.3832
+    },
+    "LR full CALIBRATED": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.0422,
+      "roc_auc": 0.4679,
+      "brier": 0.0833,
+      "brier_skill": -0.9238,
+      "ece": 0.0764,
+      "lift_top_decile": 0.2979
+    },
+    "RF full CALIBRATED": {
+      "n": 7407,
+      "base_rate": 0.0454,
+      "pr_auc": 0.0434,
+      "roc_auc": 0.4588,
+      "brier": 0.0556,
+      "brier_skill": -0.284,
+      "ece": 0.0481,
+      "lift_top_decile": 1.0724
+    }
+  },
+  "real_news_ablation_ran": false
+}

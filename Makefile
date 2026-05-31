@@ -1,45 +1,62 @@
 # FCPS — Financial Crisis Prediction System
+# Author: Romin Patel
 # Common development commands
 
-.PHONY: install install-dev train serve test test-cov lint format clean
+.PHONY: help install install-all install-lock demo train serve test test-cov lint format clean
+
+help:
+	@echo "FCPS make targets:"
+	@echo "  make install      Editable install, core deps only (no torch)"
+	@echo "  make install-all  Editable install incl. NLP (torch) + explain + dev"
+	@echo "  make install-lock Reproducible install from requirements.lock"
+	@echo "  make demo         >>> 30-second end-to-end run on cached/synthetic data, NO API key"
+	@echo "  make train        Full pipeline (needs FRED_API_KEY + optional news dir)"
+	@echo "  make serve        Launch the prediction API on :8000"
+	@echo "  make test         Run the test suite"
+	@echo "  make test-cov     Run tests with coverage report"
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 install:
-	pip install -r requirements.txt
+	pip install -e .
 
-install-dev: install
-	pip install pytest pytest-asyncio pytest-cov httpx ruff black
+install-all:
+	pip install -e ".[all]"
 
-# ── Pipeline ─────────────────────────────────────────────────────────────────
+install-lock:
+	pip install -r requirements.lock && pip install -e . --no-deps
+
+# ── 30-second demo (no external APIs, no FRED key needed) ──────────────────────
+demo:
+	python scripts/demo_run.py
+
+# ── Honest v3 backtests ─────────────────────────────────────────────────────────
+v3:
+	python scripts/v3_run.py
+
+direction:
+	python scripts/direction_run.py
+
+# ── Full pipeline / API ─────────────────────────────────────────────────────────
 train:
 	python scripts/train.py
 
-train-news:
-	python scripts/train.py --news-dir $(NEWS_DIR)
-
-# ── API ───────────────────────────────────────────────────────────────────────
 serve:
 	python scripts/serve.py
 
-serve-dev:
-	python scripts/serve.py --reload
-
 # ── Tests ─────────────────────────────────────────────────────────────────────
 test:
-	pytest tests/ -v --tb=short
+	pytest -q --tb=short
 
 test-cov:
-	pytest tests/ -v --cov=src --cov-report=html --cov-report=term-missing
+	pytest --cov=src --cov-report=html --cov-report=term-missing
 
 # ── Code quality ──────────────────────────────────────────────────────────────
 lint:
 	ruff check src/ tests/ scripts/
 
 format:
-	black src/ tests/ scripts/
+	ruff format src/ tests/ scripts/
 
 # ── Clean ─────────────────────────────────────────────────────────────────────
 clean:
-	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-	find . -name "*.pyc" -delete 2>/dev/null || true
-	rm -rf .pytest_cache htmlcov .coverage
+	rm -rf .pytest_cache .ruff_cache htmlcov .coverage **/__pycache__ *.egg-info
