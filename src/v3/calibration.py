@@ -19,13 +19,20 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
-from sklearn.calibration import CalibratedClassifierCV
+from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression
 
 
 class CalibratedTimeSeriesClassifier:
     """
     Time-aware calibration wrapper. `base_factory()` returns a fresh, unfitted
     sklearn-compatible estimator each call.
+
+    Calibration is done DIRECTLY on the base model's predicted probabilities
+    over a held-out later slice of the training window — isotonic regression
+    (or Platt/logistic when positives are sparse). This avoids
+    CalibratedClassifierCV's cross-version `cv="prefit"` behaviour drift and is
+    fully transparent and deterministic across scikit-learn versions.
     """
 
     def __init__(
@@ -41,48 +48,63 @@ class CalibratedTimeSeriesClassifier:
         self.calib_frac = calib_frac
         self.min_calib = min_calib
         self.min_calib_pos = min_calib_pos
-        self.model_ = None
+        self.base_ = None
+        self.calibrator_ = None
+        self.method_ = None
         self.calibrated_ = False
 
     def fit(self, X, y):
-        X = np.asarray(X) if not hasattr(X, "iloc") else X
         y = np.asarray(y).astype(int)
         n = len(y)
         cut = int(n * (1 - self.calib_frac))
 
-        # Split preserving time order
         if hasattr(X, "iloc"):
             Xtr, Xcal = X.iloc[:cut], X.iloc[cut:]
         else:
             Xtr, Xcal = X[:cut], X[cut:]
         ytr, ycal = y[:cut], y[cut:]
 
-        # If the calibration slice is too small or single-class, skip calibration
+        # Too small / single-class calibration slice → skip calibration cleanly
         if (len(ycal) < self.min_calib or len(np.unique(ycal)) < 2
                 or ycal.sum() < self.min_calib_pos):
-            self.model_ = self.base_factory().fit(X, y)
+            self.base_ = self.base_factory().fit(X, y)
             self.calibrated_ = False
             return self
 
-        base = self.base_factory().fit(Xtr, ytr)
+        self.base_ = self.base_factory().fit(Xtr, ytr)
+        p_cal = self._base_proba(Xcal)
 
-        # isotonic needs a fair number of positives; fall back to sigmoid if sparse
         method = self.method
         if method == "isotonic" and ycal.sum() < 25:
-            method = "sigmoid"
+            method = "sigmoid"  # isotonic is unstable with very few positives
 
         try:
-            cal = CalibratedClassifierCV(estimator=base, method=method, cv="prefit")
-            cal.fit(Xcal, ycal)
-            self.model_ = cal
+            if method == "isotonic":
+                cal = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
+                cal.fit(p_cal, ycal)
+            else:  # Platt scaling: 1-D logistic on the base probability
+                cal = LogisticRegression(max_iter=1000)
+                cal.fit(p_cal.reshape(-1, 1), ycal)
+            self.calibrator_ = cal
+            self.method_ = method
             self.calibrated_ = True
         except Exception:
-            self.model_ = self.base_factory().fit(X, y)
+            self.base_ = self.base_factory().fit(X, y)
             self.calibrated_ = False
         return self
 
+    def _base_proba(self, X) -> np.ndarray:
+        return self.base_.predict_proba(X)[:, 1]
+
     def predict_proba(self, X):
-        return self.model_.predict_proba(X)
+        p = self._base_proba(X)
+        if self.calibrated_:
+            if self.method_ == "isotonic":
+                pc = self.calibrator_.predict(p)
+            else:
+                pc = self.calibrator_.predict_proba(p.reshape(-1, 1))[:, 1]
+            p = np.clip(np.nan_to_num(pc, nan=p), 1e-6, 1 - 1e-6)
+        return np.column_stack([1 - p, p])
 
     def predict(self, X):
         return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)

@@ -78,22 +78,22 @@
     "LR full CALIBRATED": {
       "n": 7407,
       "base_rate": 0.0454,
-      "pr_auc": 0.0422,
-      "roc_auc": 0.4679,
-      "brier": 0.0833,
-      "brier_skill": -0.9238,
-      "ece": 0.0764,
+      "pr_auc": 0.0418,
+      "roc_auc": 0.4595,
+      "brier": 0.0832,
+      "brier_skill": -0.9206,
+      "ece": 0.0757,
       "lift_top_decile": 0.2979
     },
     "RF full CALIBRATED": {
       "n": 7407,
       "base_rate": 0.0454,
-      "pr_auc": 0.0434,
-      "roc_auc": 0.4588,
-      "brier": 0.0556,
-      "brier_skill": -0.284,
-      "ece": 0.0481,
-      "lift_top_decile": 1.0724
+      "pr_auc": 0.0423,
+      "roc_auc": 0.4428,
+      "brier": 0.0554,
+      "brier_skill": -0.2793,
+      "ece": 0.0461,
+      "lift_top_decile": 0.9533
     }
   },
   "real_news_ablation_ran": false
