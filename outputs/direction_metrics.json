@@ -1,0 +1,443 @@
+{
+  "task": "5-day stock direction (up/down) detection",
+  "walkforward": {
+    "min_train": 1000,
+    "step": 126,
+    "embargo": 5,
+    "horizon": 5
+  },
+  "results": {
+    "AAPL": {
+      "direction_summary": {
+        "n": 8811,
+        "n_up": 4848,
+        "up_rate": 0.5502
+      },
+      "models": {
+        "BASE always-up": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.558,
+          "majority_acc": 0.558,
+          "edge_over_majority": 0.0,
+          "auc": 0.5,
+          "mcc": 0.0,
+          "brier_skill": -0.792,
+          "ece": 0.442
+        },
+        "BASE momentum": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.5296,
+          "majority_acc": 0.558,
+          "edge_over_majority": -0.0284,
+          "auc": 0.5239,
+          "mcc": 0.0368,
+          "brier_skill": -0.0916,
+          "ece": 0.111
+        },
+        "BASE base-rate": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.5475,
+          "majority_acc": 0.558,
+          "edge_over_majority": -0.0105,
+          "auc": 0.5223,
+          "mcc": 0.0277,
+          "brier_skill": -0.0024,
+          "ece": 0.0335
+        },
+        "LR price-only": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.5295,
+          "majority_acc": 0.558,
+          "edge_over_majority": -0.0285,
+          "auc": 0.5103,
+          "mcc": 0.0161,
+          "brier_skill": -0.0161,
+          "ece": 0.0512
+        },
+        "LR price+market": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.5317,
+          "majority_acc": 0.558,
+          "edge_over_majority": -0.0263,
+          "auc": 0.4889,
+          "mcc": 0.0066,
+          "brier_skill": -0.0332,
+          "ece": 0.0736
+        },
+        "RF full": {
+          "n": 7607,
+          "up_rate": 0.558,
+          "accuracy": 0.5218,
+          "majority_acc": 0.558,
+          "edge_over_majority": -0.0363,
+          "auc": 0.4865,
+          "mcc": -0.0136,
+          "brier_skill": -0.0209,
+          "ece": 0.0541
+        }
+      }
+    },
+    "JPM": {
+      "direction_summary": {
+        "n": 8811,
+        "n_up": 4758,
+        "up_rate": 0.54
+      },
+      "models": {
+        "BASE always-up": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.5499,
+          "majority_acc": 0.5499,
+          "edge_over_majority": 0.0,
+          "auc": 0.5,
+          "mcc": 0.0,
+          "brier_skill": -0.8185,
+          "ece": 0.4501
+        },
+        "BASE momentum": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.509,
+          "majority_acc": 0.5499,
+          "edge_over_majority": -0.0409,
+          "auc": 0.4949,
+          "mcc": -0.0021,
+          "brier_skill": -0.1318,
+          "ece": 0.1313
+        },
+        "BASE base-rate": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.5475,
+          "majority_acc": 0.5499,
+          "edge_over_majority": -0.0024,
+          "auc": 0.4878,
+          "mcc": -0.0056,
+          "brier_skill": -0.0027,
+          "ece": 0.0176
+        },
+        "LR price-only": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.498,
+          "majority_acc": 0.5499,
+          "edge_over_majority": -0.0519,
+          "auc": 0.4908,
+          "mcc": -0.0293,
+          "brier_skill": -0.0185,
+          "ece": 0.048
+        },
+        "LR price+market": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.5005,
+          "majority_acc": 0.5499,
+          "edge_over_majority": -0.0494,
+          "auc": 0.4806,
+          "mcc": -0.0237,
+          "brier_skill": -0.0254,
+          "ece": 0.0507
+        },
+        "RF full": {
+          "n": 7607,
+          "up_rate": 0.5499,
+          "accuracy": 0.4942,
+          "majority_acc": 0.5499,
+          "edge_over_majority": -0.0557,
+          "auc": 0.4693,
+          "mcc": -0.0462,
+          "brier_skill": -0.0214,
+          "ece": 0.0437
+        }
+      }
+    },
+    "XOM": {
+      "direction_summary": {
+        "n": 8811,
+        "n_up": 4790,
+        "up_rate": 0.5436
+      },
+      "models": {
+        "BASE always-up": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.5473,
+          "majority_acc": 0.5473,
+          "edge_over_majority": 0.0,
+          "auc": 0.5,
+          "mcc": 0.0,
+          "brier_skill": -0.8273,
+          "ece": 0.4527
+        },
+        "BASE momentum": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.4913,
+          "majority_acc": 0.5473,
+          "edge_over_majority": -0.056,
+          "auc": 0.4748,
+          "mcc": -0.0336,
+          "brier_skill": -0.2625,
+          "ece": 0.2086
+        },
+        "BASE base-rate": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.5473,
+          "majority_acc": 0.5473,
+          "edge_over_majority": 0.0,
+          "auc": 0.4836,
+          "mcc": 0.0,
+          "brier_skill": -0.0009,
+          "ece": 0.0012
+        },
+        "LR price-only": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.5228,
+          "majority_acc": 0.5473,
+          "edge_over_majority": -0.0245,
+          "auc": 0.5367,
+          "mcc": 0.0396,
+          "brier_skill": -0.0175,
+          "ece": 0.0564
+        },
+        "LR price+market": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.5212,
+          "majority_acc": 0.5473,
+          "edge_over_majority": -0.026,
+          "auc": 0.5323,
+          "mcc": 0.0372,
+          "brier_skill": -0.0256,
+          "ece": 0.0643
+        },
+        "RF full": {
+          "n": 7607,
+          "up_rate": 0.5473,
+          "accuracy": 0.5175,
+          "majority_acc": 0.5473,
+          "edge_over_majority": -0.0297,
+          "auc": 0.5316,
+          "mcc": 0.0381,
+          "brier_skill": -0.0132,
+          "ece": 0.0539
+        }
+      }
+    },
+    "GS": {
+      "direction_summary": {
+        "n": 6452,
+        "n_up": 3454,
+        "up_rate": 0.5353
+      },
+      "models": {
+        "BASE always-up": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.5425,
+          "majority_acc": 0.5425,
+          "edge_over_majority": 0.0,
+          "auc": 0.5,
+          "mcc": 0.0,
+          "brier_skill": -0.8433,
+          "ece": 0.4575
+        },
+        "BASE momentum": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.5173,
+          "majority_acc": 0.5425,
+          "edge_over_majority": -0.0252,
+          "auc": 0.5146,
+          "mcc": 0.0246,
+          "brier_skill": -0.1122,
+          "ece": 0.1304
+        },
+        "BASE base-rate": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.5387,
+          "majority_acc": 0.5425,
+          "edge_over_majority": -0.0038,
+          "auc": 0.4824,
+          "mcc": 0.0013,
+          "brier_skill": -0.0032,
+          "ece": 0.0189
+        },
+        "LR price-only": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.4914,
+          "majority_acc": 0.5425,
+          "edge_over_majority": -0.0511,
+          "auc": 0.4965,
+          "mcc": -0.0213,
+          "brier_skill": -0.0239,
+          "ece": 0.0517
+        },
+        "LR price+market": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.4968,
+          "majority_acc": 0.5425,
+          "edge_over_majority": -0.0457,
+          "auc": 0.492,
+          "mcc": -0.0081,
+          "brier_skill": -0.0371,
+          "ece": 0.0635
+        },
+        "RF full": {
+          "n": 5248,
+          "up_rate": 0.5425,
+          "accuracy": 0.4897,
+          "majority_acc": 0.5425,
+          "edge_over_majority": -0.0528,
+          "auc": 0.4805,
+          "mcc": -0.0347,
+          "brier_skill": -0.0256,
+          "ece": 0.0563
+        }
+      }
+    },
+    "^GSPC": {
+      "direction_summary": {
+        "n": 8811,
+        "n_up": 5079,
+        "up_rate": 0.5764
+      },
+      "models": {
+        "BASE always-up": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.5808,
+          "majority_acc": 0.5808,
+          "edge_over_majority": 0.0,
+          "auc": 0.5,
+          "mcc": 0.0,
+          "brier_skill": -0.7218,
+          "ece": 0.4192
+        },
+        "BASE momentum": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.5294,
+          "majority_acc": 0.5808,
+          "edge_over_majority": -0.0514,
+          "auc": 0.5061,
+          "mcc": 0.0119,
+          "brier_skill": -0.1847,
+          "ece": 0.1587
+        },
+        "BASE base-rate": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.5808,
+          "majority_acc": 0.5808,
+          "edge_over_majority": 0.0,
+          "auc": 0.4952,
+          "mcc": 0.0,
+          "brier_skill": -0.0014,
+          "ece": 0.0128
+        },
+        "LR price-only": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.4938,
+          "majority_acc": 0.5808,
+          "edge_over_majority": -0.087,
+          "auc": 0.4946,
+          "mcc": -0.0093,
+          "brier_skill": -0.0545,
+          "ece": 0.0977
+        },
+        "LR price+market": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.4843,
+          "majority_acc": 0.5808,
+          "edge_over_majority": -0.0965,
+          "auc": 0.4925,
+          "mcc": -0.0145,
+          "brier_skill": -0.0643,
+          "ece": 0.1028
+        },
+        "RF full": {
+          "n": 7607,
+          "up_rate": 0.5808,
+          "accuracy": 0.5019,
+          "majority_acc": 0.5808,
+          "edge_over_majority": -0.0789,
+          "auc": 0.505,
+          "mcc": -0.0003,
+          "brier_skill": -0.0426,
+          "ece": 0.0891
+        }
+      }
+    }
+  },
+  "economic_backtest": {
+    "AAPL": {
+      "best_model": "LR price-only",
+      "mode": "long_flat",
+      "buyhold_sharpe": 0.75,
+      "strategy_sharpe": 0.554,
+      "buyhold_max_drawdown": -0.818,
+      "strategy_max_drawdown": -0.8594,
+      "buyhold_total_return": 895.881,
+      "strategy_total_return": 39.9018,
+      "pct_time_long": 0.6909
+    },
+    "JPM": {
+      "best_model": "LR price-only",
+      "mode": "long_flat",
+      "buyhold_sharpe": 0.534,
+      "strategy_sharpe": 0.438,
+      "buyhold_max_drawdown": -0.7402,
+      "strategy_max_drawdown": -0.6703,
+      "buyhold_total_return": 48.9235,
+      "strategy_total_return": 9.5301,
+      "pct_time_long": 0.6209
+    },
+    "XOM": {
+      "best_model": "LR price-only",
+      "mode": "long_flat",
+      "buyhold_sharpe": 0.509,
+      "strategy_sharpe": 0.703,
+      "buyhold_max_drawdown": -0.624,
+      "strategy_max_drawdown": -0.6003,
+      "buyhold_total_return": 18.2295,
+      "strategy_total_return": 39.5423,
+      "pct_time_long": 0.5336
+    },
+    "GS": {
+      "best_model": "LR price-only",
+      "mode": "long_flat",
+      "buyhold_sharpe": 0.449,
+      "strategy_sharpe": 0.397,
+      "buyhold_max_drawdown": -0.7884,
+      "strategy_max_drawdown": -0.5868,
+      "buyhold_total_return": 6.3452,
+      "strategy_total_return": 2.913,
+      "pct_time_long": 0.5231
+    },
+    "^GSPC": {
+      "best_model": "RF full",
+      "mode": "long_flat",
+      "buyhold_sharpe": 0.546,
+      "strategy_sharpe": 0.358,
+      "buyhold_max_drawdown": -0.5678,
+      "strategy_max_drawdown": -0.5775,
+      "buyhold_total_return": 12.0247,
+      "strategy_total_return": 2.7016,
+      "pct_time_long": 0.5131
+    }
+  }
+}

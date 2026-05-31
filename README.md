@@ -4,6 +4,12 @@
 Multimodal early-warning system for financial market crises.  
 Fuses price regimes (HMM), conditional volatility (GARCH), and news sentiment (FinBERT) into an interpretable ensemble classifier with SHAP explainability.
 
+> **Two evaluation tracks:**
+> - **v2 (`scripts/real_data_run.py`)** — the original crisis pipeline. Strong *in-sample* numbers, but see the honest re-evaluation below.
+> - **v3 (`scripts/v3_run.py`, `scripts/direction_run.py`)** — leakage-free, walk-forward evaluation with exogenous targets and real baselines. This is the trustworthy track. See `docs/PROJECT_REVIEW_AND_ROADMAP.md`.
+>
+> **Tasks supported:** (a) crisis detection (forward-drawdown target) and (b) **stock price direction detection** (up/down over N days, per ticker) — see `docs/DIRECTION_RESULTS.md`.
+
 ---
 
 ## Architecture
