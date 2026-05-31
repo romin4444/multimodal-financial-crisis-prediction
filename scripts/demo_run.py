@@ -181,7 +181,7 @@ def main() -> None:
     print("  → Lead-lag analysis...")
     from src.analysis.lead_lag import run_all_lead_lag, run_granger
     ll_results = run_all_lead_lag(feat, daily_sent)
-    gc_df = run_granger(feat["FSI"], daily_sent["fear_index"])
+    run_granger(feat["FSI"], daily_sent["fear_index"])
 
     # Fusion
     print("  → Fusion model training...")
@@ -197,11 +197,11 @@ def main() -> None:
     # Benchmarks
     print("  → Research benchmarks...")
     from src.analysis.benchmarks import benchmark_wang2025
-    wang_df = benchmark_wang2025(regime_df)
+    benchmark_wang2025(regime_df)
 
     # Validation
     from src.evaluation.validation import validate_checklist
-    val_df = validate_checklist(regime_df, daily_sent, evaluations)
+    validate_checklist(regime_df, daily_sent, evaluations)
 
     print("\n[6/6] Generating outputs...")
     from src.visualization.plots import (

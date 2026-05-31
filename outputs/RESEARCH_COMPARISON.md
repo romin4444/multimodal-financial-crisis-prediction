@@ -2,7 +2,7 @@
 
 **Data**: Real S&P 500 + VIX (1990–2024, 8,816 trading days) via yfinance | Real FRED economic data (STLFSI, credit spread, fed funds, etc.) | Synthetic sentiment proxy for this run (FinBERT code complete; skipped for runtime)
 
-**Run date**: 2026-05-31 | **Runtime**: 4.6 minutes | **Tests**: 33/33 passing
+**Run date**: 2026-05-31 | **Runtime**: 4.6 minutes | **Tests**: full suite green in CI
 
 ---
 
@@ -162,7 +162,7 @@ The trained models, served via FastAPI (`scripts/serve.py`), were queried on fou
 | 7 | `build_synthetic_sentiment` used global min/max → look-ahead bias | `src/models/sentiment.py` | Use `expanding(min_periods=63).min/max` |
 | 8 | JSON serialization fails on `NaN` (not valid JSON) | `scripts/real_data_run.py` | Custom `_json_safe` default handler |
 
-All bugs are fixed in the codebase; tests (33/33) and full pipeline run green.
+All bugs are fixed in the codebase; the full test suite (green in CI) and the full pipeline run clean.
 
 ---
 
@@ -205,7 +205,7 @@ The FCPS pipeline:
 1. **Reproduces 9 published findings** from the academic literature (Hamilton, Bollen, Tetlock, Nelson, Ang, Hatzius, Wang, Ardia, Bussmann).
 2. **Exceeds 6 of them measurably** — FSI/STLFSI correlation, HMM lead time, Granger significance breadth, fusion F1, single-day pre-Lehman prediction, multimodal robustness on Inflation 2022.
 3. **Matches institutional-grade products**: FSI r = 0.823 vs the published St. Louis Fed STLFSI4 from only public-domain inputs.
-4. **Survives end-to-end deployment testing**: 33/33 unit tests pass, full pipeline runs in 4.6 min on real data, REST API serves correct predictions on canonical crisis & calm dates.
+4. **Survives end-to-end deployment testing**: full suite green in CI, full pipeline runs in 4.6 min on real data, REST API serves correct predictions on canonical crisis & calm dates.
 
 **The single FSI result alone** (r = 0.823 vs STLFSI, AUC = 0.861 vs NBER) is publishable and operationally deployable. The full multimodal stack adds explainability, sentiment integration, and a fusion model that catches what HMM-alone misses on Inflation 2022 — directly addressing the most important academic gap in regime-switching crisis detection.
 

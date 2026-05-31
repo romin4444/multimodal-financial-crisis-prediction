@@ -7,12 +7,10 @@ from __future__ import annotations
 import json
 from contextlib import asynccontextmanager
 from datetime import date
-from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.schemas import (

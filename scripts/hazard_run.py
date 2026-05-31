@@ -49,7 +49,8 @@ def main() -> dict:
     market = download_all_market()
     feat = engineer_features(market["sp500"], market["vix"])
     n = len(feat)
-    train_mask = np.zeros(n, dtype=bool); train_mask[: int(n * 0.6)] = True
+    train_mask = np.zeros(n, dtype=bool)
+    train_mask[: int(n * 0.6)] = True
     feat, _ = FSIBuilder().build(feat, pd.DataFrame(), train_mask=train_mask)
     fred_daily = align_fred_to_trading_days(download_fred(), feat.index)
     macro = build_macro_features(fred_daily, market, feat.index)
@@ -67,7 +68,8 @@ def main() -> dict:
     # Temporal split: train on first 60%, test on last 40%
     idx = feat.index
     cut = int(len(idx) * 0.6)
-    tr_mask = np.zeros(len(idx), dtype=bool); tr_mask[:cut] = True
+    tr_mask = np.zeros(len(idx), dtype=bool)
+    tr_mask[:cut] = True
     te_mask = ~tr_mask
     print(f"[3] Train {idx[0].date()}->{idx[cut-1].date()} | Test {idx[cut].date()}->{idx[-1].date()}")
 

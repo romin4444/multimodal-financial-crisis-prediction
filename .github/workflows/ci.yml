@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install ruff
-        run: pip install ruff
-      - name: Ruff check (non-blocking)
-        run: ruff check src/ tests/ scripts/ || true
+      - name: Install ruff (pinned for reproducibility)
+        run: pip install "ruff>=0.15,<0.16"
+      - name: Ruff check (BLOCKING — lint failures fail the build)
+        run: ruff check src/ tests/ scripts/

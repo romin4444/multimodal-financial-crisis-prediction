@@ -184,7 +184,7 @@ def main() -> dict:
     print("=" * 72)
     pa = results["MODEL +regime+sent (LR)"]["pr_auc"]
     base = results["BASELINE VIX-threshold"]["pr_auc"]
-    print(f"  v2 reported (in-sample, leaky)        : F1 = 0.99")
+    print("  v2 reported (in-sample, leaky)        : F1 = 0.99")
     print(f"  v3 honest OOS (full model PR-AUC)     : {pa}")
     print(f"  v3 VIX-only baseline PR-AUC           : {base}")
     print(f"  -> sentiment/regime add value?         {'YES' if (pa or 0) > (base or 0) else 'MARGINAL/NO'}")

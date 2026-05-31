@@ -14,7 +14,7 @@ random walk (Fama 1970, EMH). The honest bar is therefore: can a model beat the
 """
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd

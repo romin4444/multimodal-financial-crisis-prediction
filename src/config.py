@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel, field_validator
 
 
 # ─── Sub-models ──────────────────────────────────────────────────────────────

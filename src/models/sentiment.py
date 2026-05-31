@@ -5,8 +5,6 @@ Synthetic VIX-based proxy fills coverage gaps — clearly flagged in output.
 """
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -75,7 +73,7 @@ def run_finbert(news_df: pd.DataFrame) -> pd.DataFrame:
             probs = np.full((len(batch), 3), 1 / 3, dtype=np.float32)
         all_probs.append(probs)
 
-        if (i + BATCH_SIZE) % checkpoint_n == 0:
+        if (i + batch_size) % checkpoint_n == 0:
             np.save(_FB_CKPT, np.vstack(all_probs))
 
     scores = np.vstack(all_probs)

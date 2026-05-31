@@ -62,7 +62,8 @@ def main() -> dict:
     market = download_all_market()
     feat = engineer_features(market["sp500"], market["vix"])
     n = len(feat)
-    train_mask = np.zeros(n, dtype=bool); train_mask[: int(n * 0.5)] = True
+    train_mask = np.zeros(n, dtype=bool)
+    train_mask[: int(n * 0.5)] = True
     feat, _ = FSIBuilder().build(feat, pd.DataFrame(), train_mask=train_mask)
     fred = download_fred()
     fred_daily = align_fred_to_trading_days(fred, feat.index)

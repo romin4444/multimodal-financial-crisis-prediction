@@ -4,9 +4,7 @@ Uses FastAPI's TestClient — no real server needed.
 """
 from __future__ import annotations
 
-import json
 from datetime import date, timedelta
-from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -52,7 +50,7 @@ class TestHealth:
         assert response.status_code == 200
 
     def test_status_ok(self, client):
-        data = response = client.get("/health").json()
+        data = client.get("/health").json()
         assert data["status"] == "ok"
 
 

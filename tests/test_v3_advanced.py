@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 
 
 # ─── Calibration ─────────────────────────────────────────────────────────────
@@ -145,7 +144,6 @@ class TestHazard:
         from src.v3.hazard import drawdown_panel, fit_hazard, evaluate_hazard
         close = self._crashy_close()
         idx = close.index
-        rng = np.random.default_rng(0)
         feat = pd.DataFrame({
             "vol_21d": np.log(close / close.shift(1)).rolling(21).std().bfill() * np.sqrt(252),
             "drawdown_63": (close / close.rolling(63).max() - 1).bfill(),
@@ -153,7 +151,8 @@ class TestHazard:
         }, index=idx)
         panel = drawdown_panel(close, threshold=0.10)
         cut = int(len(idx) * 0.6)
-        tr = np.zeros(len(idx), dtype=bool); tr[:cut] = True
+        tr = np.zeros(len(idx), dtype=bool)
+        tr[:cut] = True
         fit = fit_hazard(panel, feat, ["vol_21d", "drawdown_63", "mom_21d"], tr)
         m = evaluate_hazard(fit, panel, feat, horizon=21, test_mask=~tr, drawdown_threshold=0.10)
         assert "c_index" in m and "n" in m

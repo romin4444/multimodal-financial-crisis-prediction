@@ -4,7 +4,7 @@ Wang et al. (2025) HMM-only baseline and FinBERT vs VADER comparison.
 """
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 import pandas as pd
 from scipy import stats

@@ -162,12 +162,22 @@ probability calibration · honest baselines · economic backtest.
 ## Testing & CI
 
 ```bash
-make test             # full pytest suite (56 tests)
+make test             # full pytest suite — 71 tests (live count: CI badge above)
 ```
 
-GitHub Actions runs `pip install -e ".[dev]"` + `pytest` + `ruff` on every push
-(Python 3.10 and 3.12). Heavy NLP deps are optional and their tests skip cleanly
-when torch isn't installed, so CI stays fast and green.
+The suite is **unit + integration**:
+- Unit tests with deterministic synthetic fixtures (incl. explicit look-ahead /
+  causality proofs for the v3 harness).
+- **Real integration tests**: a full artifact round-trip through the API
+  (`tests/test_api_integration.py` — real joblib save/load + `/predict`, not
+  mocked state) and a real FRED-snapshot alignment test
+  (`tests/test_data_integration.py`, using the committed `fred_data.csv`).
+
+GitHub Actions runs `pip install -e ".[dev]"` + `pytest` + **blocking** `ruff`
+on every push (Python 3.10 and 3.12). Lint failures fail the build. Heavy NLP
+deps are optional and their tests skip cleanly when torch isn't installed, so CI
+stays fast. (CI already paid for itself once — it caught a scikit-learn version
+drift and a latent `NameError` that local runs missed.)
 
 ---
 

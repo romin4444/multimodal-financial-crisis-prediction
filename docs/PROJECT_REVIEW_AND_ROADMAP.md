@@ -16,7 +16,7 @@
 | Structured logging | ✅ Complete | JSON logs with rotation (`src/logging_setup.py`) |
 | Reproducible pipeline | ✅ Runs end-to-end | `scripts/real_data_run.py` — 4.6 min on real 1990–2024 data |
 | REST API | ✅ Serves predictions | FastAPI, Pydantic schemas, tested |
-| Test suite | ✅ 45/45 passing | `tests/` incl. look-ahead/causality proofs |
+| Test suite | ✅ Green in CI | `tests/` — unit + integration, incl. look-ahead/causality proofs (live count: README CI badge) |
 | FSI vs Fed STLFSI | ✅ **r = 0.823** | This is real and strong (see caveat below) |
 | **Honest OOS backtest** | ✅ **NEW (v3)** | `scripts/v3_run.py`, `outputs/v3_metrics.json` |
 
@@ -166,7 +166,7 @@ NEW in v3:
   docs/PROJECT_REVIEW_AND_ROADMAP.md   this document
   outputs/v3_metrics.json     the honest numbers
 
-Test suite: 45/45 passing (33 v2 + 12 v3).
+Test suite: green in CI — unit + integration (v2 + v3 + advanced + API/FRED integration). The live count is the README CI badge.
 ```
 
 ### Bottom line

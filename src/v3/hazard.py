@@ -25,7 +25,7 @@ the hazard score against onset) and calibration of the N-day risk.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -156,7 +156,6 @@ def evaluate_hazard(
     c_index = float(roc_auc_score(te["onset"].astype(int), h)) if te["onset"].nunique() > 1 else float("nan")
 
     # Realized N-day outcome: did a >=threshold drawdown occur within horizon?
-    close = panel["dd"]  # not used directly; recompute realized from dd path
     realized = _realized_within(panel, horizon, drawdown_threshold).reindex(te.index)
     risk = fit.cumulative_incidence(te, horizon)
 

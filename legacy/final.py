@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 """
+================================================================================
+  !!! ARCHIVED — DO NOT USE AS THE REFERENCE IMPLEMENTATION !!!
+  This is the ORIGINAL 2,016-line Kaggle monolith, kept only for provenance.
+  It has KNOWN evaluation-leakage issues (see docs/PROJECT_REVIEW_AND_ROADMAP.md)
+  and is NOT maintained, NOT tested, and EXCLUDED from lint/CI.
+  The current, modular, leakage-free implementation lives in  src/  and  scripts/.
+  Start with:  python scripts/demo_run.py   (or see the repo-root README.md)
+================================================================================
+
 ╔══════════════════════════════════════════════════════════════════╗
 ║  MBAI 5600G  |  Group 13  |  Jeya Surya Balaji & Keertan Patel  ║
 ║  Multimodal Financial Crisis Prediction — Kaggle Production v2   ║

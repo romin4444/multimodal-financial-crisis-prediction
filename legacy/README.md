@@ -1,8 +1,14 @@
-# legacy/ — original capstone artifacts (archived)
+# legacy/ — original capstone artifacts (ARCHIVED — do not use)
 
-These files are the **original** MBAI 5600G submission materials, kept for
-provenance. They are **not** the canonical entry point — see the repository
-root `README.md` for the current, modular pipeline (`src/`, `scripts/`).
+> ⚠️ **Quarantined.** Everything in this folder is the **original** MBAI 5600G
+> submission, kept only for provenance. It is **not** the reference
+> implementation: it is **not maintained, not tested, and excluded from lint/CI**
+> (`extend-exclude = ["legacy"]` in `pyproject.toml`). `final.py` here has the
+> known evaluation-leakage issues documented in
+> `docs/PROJECT_REVIEW_AND_ROADMAP.md`.
+>
+> 👉 The current, modular, leakage-free pipeline is in **`src/`** and **`scripts/`**.
+> Start at the repository-root `README.md` or run `python scripts/demo_run.py`.
 
 | Path | What it is |
 |---|---|

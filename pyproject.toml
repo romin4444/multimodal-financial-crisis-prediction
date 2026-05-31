@@ -82,3 +82,10 @@ include = ["src*", "scripts*"]
 [tool.ruff]
 line-length = 110
 target-version = "py310"
+# Quarantine the archived original code — it is intentionally not maintained.
+extend-exclude = ["legacy"]
+
+[tool.ruff.lint.per-file-ignores]
+# Runner scripts adjust sys.path before importing the package by design.
+"scripts/*" = ["E402"]
+"tests/*" = ["E402"]

@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -120,7 +120,7 @@ def run_pipeline(news_dir: Optional[Path] = None) -> PipelineResult:
     from src.analysis.lead_lag import run_all_lead_lag, run_granger
 
     ll_results = run_all_lead_lag(feat, daily_sent)
-    gc_df = run_granger(feat["FSI"], daily_sent["fear_index"])
+    run_granger(feat["FSI"], daily_sent["fear_index"])  # logged for the report
 
     # ── 9. Fusion model ──────────────────────────────────────────────
     log.info("Stage 9/9: Fusion model + SHAP + evaluation")
@@ -133,7 +133,7 @@ def run_pipeline(news_dir: Optional[Path] = None) -> PipelineResult:
     trained, evaluations = train_fusion(fusion_df)
     shap_results, _ = run_shap(fusion_df, trained)
 
-    wang_df = benchmark_wang2025(regime_df)
+    benchmark_wang2025(regime_df)  # logged for the report
     fb_vs_vader = compare_finbert_vader(daily_sent, vader_sent, feat["FSI"])
     val_df = validate_checklist(regime_df, daily_sent, evaluations)
 

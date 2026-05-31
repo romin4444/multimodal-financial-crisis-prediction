@@ -16,7 +16,7 @@ FIX:
 """
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 import pandas as pd

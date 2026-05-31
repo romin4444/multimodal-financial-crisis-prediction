@@ -4,7 +4,7 @@ All visualizations. Each function saves one figure and logs the output path.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import matplotlib
 matplotlib.use("Agg")

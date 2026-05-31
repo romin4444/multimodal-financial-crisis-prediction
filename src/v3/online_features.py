@@ -25,7 +25,6 @@ import pandas as pd
 from hmmlearn.hmm import GaussianHMM
 from sklearn.preprocessing import StandardScaler
 
-from src.config import cfg
 from src.logging_setup import get_logger
 from src.v3.causal_regime import filtered_state_proba, volatility_state_order
 

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 from statsmodels.stats.diagnostic import het_arch
 from statsmodels.tsa.stattools import adfuller
 
