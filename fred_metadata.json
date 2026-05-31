@@ -1,0 +1,21 @@
+{
+  "downloaded_at": "2026-05-29T17:37:33.379723",
+  "series_count": 10,
+  "rows": 9526,
+  "date_range": [
+    "1990-01-01",
+    "2026-01-01"
+  ],
+  "columns": [
+    "fed_funds",
+    "yield_spread",
+    "credit_spread",
+    "stl_fsi",
+    "oil_price",
+    "treasury_10y",
+    "treasury_2y",
+    "vix_fred",
+    "consumer_sentiment",
+    "nber_recession"
+  ]
+}

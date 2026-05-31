@@ -1,0 +1,173 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# MBAI 5600G | Group 13 | Multimodal Financial Crisis Prediction
+# Enterprise Configuration — edit ONLY here, never in source code
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Reproducibility ──────────────────────────────────────────────────────────
+seed: 42
+
+# ── I/O Paths ────────────────────────────────────────────────────────────────
+paths:
+  cache_dir: "data/cache"
+  output_dir: "outputs"
+  model_dir: "outputs/models"
+  log_dir: "logs"
+
+# ── Data ─────────────────────────────────────────────────────────────────────
+data:
+  start_date: "1990-01-01"
+  end_date: "2024-12-31"
+  index_ticker: "^GSPC"
+  vix_ticker: "^VIX"
+  stock_tickers: ["AAPL", "JPM", "XOM", "GS"]
+
+  fred_series:
+    FEDFUNDS: "fed_funds"
+    T10Y2Y: "yield_spread"
+    BAMLH0A0HYM2: "credit_spread"
+    STLFSI4: "stl_fsi"
+    STLFSI2: "stl_fsi_v2"
+    DCOILWTICO: "oil_price"
+
+  # Cap forward-fill on FRED data to avoid propagating stale values
+  fred_ffill_limit: 22  # trading days (≈1 month)
+
+  max_headlines: 400000
+  news_min_headline_len: 15
+  yfinance_retries: 3
+  yfinance_retry_backoff: 2  # seconds, multiplied by attempt number
+
+# ── Financial Stress Index ────────────────────────────────────────────────────
+fsi:
+  weights:
+    vix: 0.30
+    garch: 0.30
+    drawdown: 0.20
+    credit: 0.20
+  # Scaler is fit on training data only to prevent leakage
+  correlation_target: 0.60
+
+# ── GARCH ────────────────────────────────────────────────────────────────────
+garch:
+  specs:
+    - vol: "GARCH"
+      p: 1
+      o: 0
+      q: 1
+      label: "GARCH(1,1)"
+    - vol: "GARCH"
+      p: 1
+      o: 1
+      q: 1
+      label: "GJR-GARCH(1,1)"
+    - vol: "EGARCH"
+      p: 1
+      o: 1
+      q: 1
+      label: "EGARCH(1,1)"
+  max_iter: 2000
+  ftol: 1.0e-9
+
+# ── HMM ──────────────────────────────────────────────────────────────────────
+hmm:
+  n_states_candidates: [2, 3, 4]
+  canonical_n_states: 3      # fixed for interpretability (Ang & Timmermann 2012)
+  n_init_seeds: 50
+  n_iter: 200
+  tol: 1.0e-5
+  features: ["log_ret", "garch_var", "vol_21d", "FSI"]
+
+# ── FinBERT ───────────────────────────────────────────────────────────────────
+finbert:
+  model_name: "ProsusAI/finbert"
+  batch_size_gpu: 128
+  batch_size_cpu: 32
+  max_length: 128
+  panic_threshold: 0.40
+  checkpoint_every_n: 5000  # headlines between checkpoint saves
+
+# ── Lead-Lag ──────────────────────────────────────────────────────────────────
+lead_lag:
+  max_lag_days: 30
+  bootstrap_n: 1000
+  crisis_window_bootstrap_n: 200  # lighter for per-window computation
+
+# ── Fusion Model ──────────────────────────────────────────────────────────────
+fusion:
+  prediction_horizon_days: 5
+  f1_target: 0.70
+  feature_columns:
+    - "prob_stable"
+    - "prob_volatile"
+    - "prob_crisis"
+    - "fear_index"
+    - "fear_3d"
+    - "fear_7d"
+    - "panic_signal"
+    - "FSI"
+    - "vol_21d"
+    - "vix"
+    - "drawdown_63"
+  logistic_regression:
+    C: 1.0
+    penalty: "l2"
+    solver: "lbfgs"
+    max_iter: 2000
+  random_forest:
+    n_estimators: 500
+    max_depth: 6
+    min_samples_leaf: 10
+    n_jobs: -1
+  gradient_boosting:
+    n_estimators: 300
+    max_depth: 3
+    learning_rate: 0.05
+    subsample: 0.8
+
+# ── Crisis Windows ────────────────────────────────────────────────────────────
+crisis_windows:
+  GFC_2008:
+    start: "2008-09-01"
+    end: "2009-03-31"
+  COVID_2020:
+    start: "2020-02-19"
+    end: "2020-03-23"
+  Inflation_2022:
+    start: "2022-01-01"
+    end: "2022-10-31"
+
+# ── NBER Recessions ───────────────────────────────────────────────────────────
+nber_recessions:
+  - ["1990-07-01", "1991-03-01"]
+  - ["2001-03-01", "2001-11-01"]
+  - ["2007-12-01", "2009-06-01"]
+  - ["2020-02-01", "2020-04-01"]
+
+# ── Visualization ─────────────────────────────────────────────────────────────
+visualization:
+  dpi: 200
+  palette:
+    stable: "#2ECC71"
+    volatile: "#F39C12"
+    crisis: "#E74C3C"
+    sentiment: "#3498DB"
+    fsi: "#9B59B6"
+    garch: "#E67E22"
+    vader: "#95A5A6"
+    price: "#1ABC9C"
+
+# ── API ───────────────────────────────────────────────────────────────────────
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  log_level: "info"
+  # Number of days of history to require before making a prediction
+  min_history_days: 126
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level: "INFO"
+  format: "json"  # "json" for structured prod logs, "text" for dev
+  rotation_mb: 100
+  retention_days: 30

@@ -1,0 +1,38 @@
+# ── Secrets ───────────────────────────────────────────────────────────────
+.env
+*.key
+secrets.*
+
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# ── Large result bundles & archives (generated, ~140 MB) ───────────────────
+*.zip
+archive*
+results*
+
+# ── Generated data caches ──────────────────────────────────────────────────
+data/cache/
+
+# ── Generated heavy outputs (keep reports + figures, drop big binaries) ────
+outputs/integration_master.csv
+outputs/models/
+logs/
+
+# ── Local tooling / OS ──────────────────────────────────────────────────────
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+.venv/
+venv/
+*.log
