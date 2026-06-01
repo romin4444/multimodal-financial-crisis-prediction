@@ -34,6 +34,8 @@ frontier_benchmark.png
 frontier_benchmark_metrics.json
 edge_multimodal.png
 edge_multimodal_results.json
+fair_benchmark.png
+fair_benchmark_results.json
 
 # ── Local tooling / OS ──────────────────────────────────────────────────────
 .claude/settings.local.json

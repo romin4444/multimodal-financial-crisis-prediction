@@ -2,6 +2,16 @@
 
 Author: Romin Patel. Two self-contained, GPU-ready notebooks:
 
+### `kaggle_fair_benchmark.ipynb`  ← head-to-head vs the literature
+Implements the methods from the key papers (HMM, GARCH, **TDA**, sentiment/FinBERT,
+evolving-correlation ensemble, **Chronos TSFM**, our calibrated fusion) on the
+**same data the papers use** (7 equity indices + VIX + FRED macro + optional news),
+and scores each under **two regimes side by side**: *paper-style* (in-sample /
+smoothed, no embargo) vs *honest* (causal + CPCV + embargo + PBO + Deflated Sharpe
++ VIX baseline). The **INFLATION** column (paper − honest PR-AUC) exposes where each
+paper's edge comes from. Output: `fair_benchmark_results.json` (send this back).
+Attach a `FRED_API_KEY` secret + a news dataset for the complete run.
+
 ### `kaggle_edge_and_multimodal.ipynb`  ← run this to close the two open questions
 Focused test of (Q1) **can any model beat a VIX threshold out-of-sample?** and
 (Q2) **does real FinBERT news sentiment add value?** Sweeps the target over
