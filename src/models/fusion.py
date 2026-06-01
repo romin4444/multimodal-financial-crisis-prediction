@@ -59,6 +59,7 @@ class TrainedFusion:
     feature_cols: List[str]
     train_size: int
     val_size: int
+    calibrated: bool = False  # True only if models output calibrated probabilities
 
     def predict_proba(self, X: np.ndarray) -> Dict[str, np.ndarray]:
         return {name: m.predict_proba(X)[:, 1] for name, m in self.models.items()}
@@ -89,6 +90,7 @@ class TrainedFusion:
             "train_size": self.train_size,
             "val_size": self.val_size,
             "f1_target": cfg.fusion.f1_target,
+            "calibrated": self.calibrated,
         }
         with open(directory / "fusion_meta.json", "w") as fh:
             json.dump(meta, fh, indent=2)
@@ -110,6 +112,7 @@ class TrainedFusion:
             feature_cols=meta["feature_cols"],
             train_size=meta["train_size"],
             val_size=meta["val_size"],
+            calibrated=meta.get("calibrated", False),  # back-compatible default
         )
 
 

@@ -58,6 +58,11 @@ class PredictionResponse(BaseModel):
     fear_index: Optional[float] = Field(None, ge=0.0, le=1.0, description="FinBERT fear index [0,1]")
     model_predictions: List[ModelPrediction] = []
     ensemble_crisis_probability: Optional[float] = None
+    probabilities_calibrated: bool = Field(
+        False,
+        description="If false, treat crisis_probability as a RANKING score, not a literal "
+        "probability — the served models are not probability-calibrated.",
+    )
     data_as_of: Optional[date] = None
     warnings: List[str] = []
 
@@ -66,7 +71,7 @@ class HealthResponse(BaseModel):
     status: str
     models_loaded: bool
     last_data_date: Optional[date] = None
-    pipeline_version: str = "2.0.0"
+    pipeline_version: str = "3.0.0"
 
 
 class MetricsResponse(BaseModel):

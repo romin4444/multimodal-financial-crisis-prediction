@@ -44,7 +44,14 @@ fsi:
     garch: 0.30
     drawdown: 0.20
     credit: 0.20
-  # Scaler is fit on training data only to prevent leakage
+  # Leakage status of the FSI MinMax scaler, by code path:
+  #   - v2 pipeline (src/pipeline.py, scripts/real_data_run.py): fit on FULL data
+  #     (legacy; acceptable for the descriptive FSI-vs-STLFSI result only).
+  #   - v3 honest runs (scripts/v3_run.py): fit on a fixed 50% train-head mask.
+  #   - Fully deployable (per-fold refit): src/v3/online_features.py.
+  # GARCH conditional variance is fit in-sample as a feature generator and is
+  # NOT used in the v3 HMM feature set. Treat the v3 PR-AUC as a near-honest
+  # upper bound; the online (per-fold) path removes the residual scaler leakage.
   correlation_target: 0.60
 
 # ── GARCH ────────────────────────────────────────────────────────────────────

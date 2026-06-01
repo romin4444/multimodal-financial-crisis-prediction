@@ -172,8 +172,15 @@ def _make_prediction(target_date: date, horizon_days: int) -> PredictionResponse
     # Model predictions
     model_predictions = []
     ensemble_prob = None
+    calibrated = bool(getattr(trained, "calibrated", False)) if trained is not None else False
 
     if trained is not None:
+        if not calibrated:
+            warnings.append(
+                "Probabilities are NOT calibrated — use crisis_probability as a ranking "
+                "score, not a literal probability (Brier skill is near/below base rate). "
+                "Retrain with calibration to serve trustworthy probabilities."
+            )
         feature_cols = trained.feature_cols
         available_cols = [c for c in feature_cols if c in feat.columns]
         missing_cols = [c for c in feature_cols if c not in feat.columns]
@@ -214,6 +221,7 @@ def _make_prediction(target_date: date, horizon_days: int) -> PredictionResponse
         fear_index=round(float(row.get("fear_index", float("nan"))), 4) if "fear_index" in feat.columns else None,
         model_predictions=model_predictions,
         ensemble_crisis_probability=ensemble_prob,
+        probabilities_calibrated=calibrated,
         data_as_of=feat.index.max().date(),
         warnings=warnings,
     )

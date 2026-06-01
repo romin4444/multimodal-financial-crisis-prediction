@@ -73,6 +73,10 @@ def test_real_artifact_roundtrip_and_predict(tmp_path, monkeypatch):
         assert 0.0 <= pred["crisis_probability"] <= 1.0
         # No "missing feature columns" warning — integration CSV had all features
         assert not any("Missing feature" in w for w in body.get("warnings", []))
+        # Honesty: uncalibrated models must be flagged AND warned about, never
+        # served as literal probabilities silently.
+        assert body["probabilities_calibrated"] is False
+        assert any("calibrated" in w.lower() for w in body.get("warnings", []))
 
 
 def test_real_artifact_health_reports_loaded(tmp_path, monkeypatch):
