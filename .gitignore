@@ -29,6 +29,10 @@ outputs/integration_master.csv
 outputs/models/
 logs/
 
+# ── Notebook smoke-test artifacts (written to repo root by _validate_local.py) ─
+frontier_benchmark.png
+frontier_benchmark_metrics.json
+
 # ── Local tooling / OS ──────────────────────────────────────────────────────
 .claude/settings.local.json
 .DS_Store
