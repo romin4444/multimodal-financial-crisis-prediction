@@ -63,6 +63,11 @@ def _as_source(lines):
 
 if __name__ == "__main__":
     base = Path(__file__).parent
-    src = base / "kaggle_frontier_benchmark.py"
-    dst = base / "kaggle_frontier_benchmark.ipynb"
-    convert(src, dst)
+    stems = sys.argv[1:] or ["kaggle_frontier_benchmark", "kaggle_edge_and_multimodal"]
+    for stem in stems:
+        stem = stem.replace(".py", "").replace(".ipynb", "")
+        src = base / f"{stem}.py"
+        if src.exists():
+            convert(src, base / f"{stem}.ipynb")
+        else:
+            print(f"skip (no .py): {src}")

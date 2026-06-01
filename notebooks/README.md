@@ -1,7 +1,18 @@
-# notebooks/ — Kaggle frontier benchmark
+# notebooks/ — Kaggle GPU notebooks
 
-**`kaggle_frontier_benchmark.ipynb`** — a self-contained, GPU-ready benchmark that
-evaluates crisis prediction at the 2025–2026 methodological bar. Author: Romin Patel.
+Author: Romin Patel. Two self-contained, GPU-ready notebooks:
+
+### `kaggle_edge_and_multimodal.ipynb`  ← run this to close the two open questions
+Focused test of (Q1) **can any model beat a VIX threshold out-of-sample?** and
+(Q2) **does real FinBERT news sentiment add value?** Sweeps the target over
+horizons × thresholds, adds VIX-orthogonal macro + TDA + real-news sentiment, and
+judges each config by `PR-AUC > VIX` **and** `PBO < 0.5` **and** `Deflated Sharpe > 0.95`.
+**Attach a `FRED_API_KEY` secret and a financial-news dataset for the full test.**
+Output: `edge_multimodal_results.json` (send this back).
+
+### `kaggle_frontier_benchmark.ipynb`
+The broad benchmark that evaluates crisis prediction at the 2025–2026 bar
+(CPCV + PBO + DSR + TDA + Chronos TSFM + FinBERT + hazard, all in one harness).
 
 ## Run on Kaggle (recommended — GPU)
 

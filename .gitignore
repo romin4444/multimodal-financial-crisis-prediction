@@ -29,9 +29,11 @@ outputs/integration_master.csv
 outputs/models/
 logs/
 
-# ── Notebook smoke-test artifacts (written to repo root by _validate_local.py) ─
+# ── Notebook smoke-test artifacts (written to repo root by local validators) ──
 frontier_benchmark.png
 frontier_benchmark_metrics.json
+edge_multimodal.png
+edge_multimodal_results.json
 
 # ── Local tooling / OS ──────────────────────────────────────────────────────
 .claude/settings.local.json
