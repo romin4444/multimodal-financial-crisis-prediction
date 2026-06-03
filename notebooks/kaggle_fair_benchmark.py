@@ -108,7 +108,7 @@ try:
     key=UserSecretsClient().get_secret("FRED_API_KEY")
     from fredapi import Fred; fred=Fred(api_key=key)
     raw={}
-    for col,sid in {"credit_spread":"BAMLH0A0HYM2","yield_spread":"T10Y2Y","fed_funds":"FEDFUNDS",
+    for col,sid in {"credit_spread":"BAA10Y","yield_spread":"T10Y2Y","fed_funds":"FEDFUNDS",
                     "oil_price":"DCOILWTICO","ted":"TEDRATE","stlfsi":"STLFSI4"}.items():
         try: raw[col]=fred.get_series(sid,observation_start=START,observation_end=END)
         except Exception: pass

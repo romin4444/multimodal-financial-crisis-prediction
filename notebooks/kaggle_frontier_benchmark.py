@@ -107,7 +107,7 @@ try:
     key = UserSecretsClient().get_secret("FRED_API_KEY")
     from fredapi import Fred
     fred = Fred(api_key=key)
-    series = {"credit_spread": "BAMLH0A0HYM2", "yield_spread": "T10Y2Y",
+    series = {"credit_spread": "BAA10Y", "yield_spread": "T10Y2Y",
               "fed_funds": "FEDFUNDS", "oil_price": "DCOILWTICO"}
     raw = {}
     for col, sid in series.items():

@@ -91,7 +91,9 @@ try:
     from fredapi import Fred
     fred = Fred(api_key=key)
     raw = {}
-    for col, sid in {"credit_spread": "BAMLH0A0HYM2", "yield_spread": "T10Y2Y",
+    # NOTE: ICE HY OAS (BAMLH0A0HYM2) is relicensed to 2023+ on FRED -> use BAA10Y
+    # (Moody's Baa - 10Y) for full 1990+ credit history.
+    for col, sid in {"credit_spread": "BAA10Y", "yield_spread": "T10Y2Y",
                      "fed_funds": "FEDFUNDS", "oil_price": "DCOILWTICO",
                      "ted": "TEDRATE", "t3m": "DGS3MO"}.items():
         try: raw[col] = fred.get_series(sid, observation_start=START, observation_end=END)
