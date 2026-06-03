@@ -1,0 +1,94 @@
+{
+  "sweep": [
+    {
+      "H": 10,
+      "thr": 0.07,
+      "base": 0.0345,
+      "VIX": 0.1798,
+      "price": 0.1302,
+      "price+macro": 0.0578,
+      "price+macro+regime": 0.064,
+      "best_set": "price",
+      "PBO": 0.8857,
+      "DSR": 0.9765,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 10,
+      "thr": 0.1,
+      "base": 0.0147,
+      "VIX": 0.1602,
+      "price": 0.1303,
+      "price+macro": 0.1278,
+      "price+macro+regime": 0.0922,
+      "best_set": "price",
+      "PBO": 0.0,
+      "DSR": 0.9947,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 21,
+      "thr": 0.07,
+      "base": 0.0918,
+      "VIX": 0.2287,
+      "price": 0.1522,
+      "price+macro": 0.1078,
+      "price+macro+regime": 0.1091,
+      "best_set": "price",
+      "PBO": 0.4571,
+      "DSR": 0.9461,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 21,
+      "thr": 0.1,
+      "base": 0.0395,
+      "VIX": 0.1778,
+      "price": 0.0963,
+      "price+macro": 0.0614,
+      "price+macro+regime": 0.06,
+      "best_set": "price",
+      "PBO": 0.9429,
+      "DSR": 0.9953,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 63,
+      "thr": 0.07,
+      "base": 0.2117,
+      "VIX": 0.3465,
+      "price": 0.2542,
+      "price+macro": 0.1758,
+      "price+macro+regime": 0.1766,
+      "best_set": "price",
+      "PBO": 0.5571,
+      "DSR": 0.9875,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 63,
+      "thr": 0.1,
+      "base": 0.1374,
+      "VIX": 0.2583,
+      "price": 0.1731,
+      "price+macro": 0.1235,
+      "price+macro+regime": 0.1234,
+      "best_set": "price",
+      "PBO": 0.3857,
+      "DSR": 0.9964,
+      "WINS_ALL_GATES": false
+    }
+  ],
+  "any_beats_vix": false,
+  "any_wins_all_gates": false,
+  "fsi_vs_stlfsi_r": 0.7559,
+  "macro_features": [
+    "credit",
+    "credit_chg_63",
+    "slope2y",
+    "slope_chg_63",
+    "slope3m",
+    "tbill_chg_63"
+  ],
+  "credit_source": "BAA10Y (Moody's Baa-10Y, full history)"
+}

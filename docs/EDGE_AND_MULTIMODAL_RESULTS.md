@@ -50,6 +50,42 @@ also degrades PR-AUC — classic overfitting on a rare positive class.
 
 ---
 
+## Run 2 — 2026-06-02 (real full-history credit + macro; the #1 lever)
+
+`scripts/run2_macro_edge.py`, real FRED key. The ICE HY OAS series (`BAMLH0A0HYM2`)
+is relicensed to 2023+ on FRED, so the long-history credit proxy is **`BAA10Y`
+(Moody's Baa − 10Y, 100% coverage 1990–2024)**, plus `T10Y2Y`, `T10Y3M`, `DGS3MO`.
+Honest CPCV (6 groups, 21d embargo), calibrated logistic, full sweep.
+
+| Target | base | **VIX PR-AUC** | price | +macro | +macro+regime | PBO | DSR |
+|---|---|---|---|---|---|---|---|
+| 10d/7% | 0.035 | **0.180** | 0.130 | 0.058 | 0.064 | 0.89 | 0.98 |
+| 10d/10% | 0.015 | **0.160** | 0.130 | 0.128 | 0.092 | 0.00 | 0.99 |
+| 21d/7% | 0.092 | **0.229** | 0.152 | 0.108 | 0.109 | 0.46 | 0.95 |
+| 21d/10% | 0.040 | **0.178** | 0.096 | 0.061 | 0.060 | 0.94 | 1.00 |
+| 63d/7% | 0.212 | **0.346** | 0.254 | 0.176 | 0.177 | 0.56 | 0.99 |
+| 63d/10% | 0.137 | **0.258** | 0.173 | 0.124 | 0.123 | 0.39 | 1.00 |
+
+**Verdict: `any_beats_vix = False`, `any_wins_all_gates = False`.** Even with
+genuine full-history credit spreads — the single most-recommended VIX-orthogonal
+signal — **nothing beats VIX**, and adding macro features *hurt* vs price-only
+(multicollinearity on a rare positive class). Intuition: for forecasting a forward
+**equity** drawdown, option-implied equity vol (VIX) is the most direct signal;
+credit leads some crises (2008) but lags vol shocks (COVID), so on average over
+1990–2024 it does not clear the bar. Positive control held: **FSI vs STLFSI r = 0.756**.
+
+This is now a *robust* null for Q1 — established with the best available data, not
+a data-limitation excuse. The only remaining untested lever is **real news**.
+
+## Run 3 (to do) — real-news multimodal, the last open shot
+Attach this Kaggle dataset to the GPU notebook (date + headline, covers all crisis
+windows): **`dyutidasmahaptra/s-and-p-500-with-financial-news-headlines-20082024`**
+(S&P 500 + daily headlines, 2008–2024). Backup: `notlucasp/financial-news-headlines`.
+Then run `kaggle_edge_and_multimodal.ipynb` / `kaggle_fair_benchmark.ipynb` with
+the FRED secret set. This is the only path that could still clear the gates;
+EMH-style priors are skeptical, but it is the experiment that confirms or retires
+the multimodal thesis for good.
+
 ## Interpretation (for Milestone 4)
 
 Even with **GPU + TDA (a 2025 frontier method) + cross-asset correlation +

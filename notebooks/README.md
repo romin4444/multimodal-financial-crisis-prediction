@@ -12,6 +12,12 @@ smoothed, no embargo) vs *honest* (causal + CPCV + embargo + PBO + Deflated Shar
 paper's edge comes from. Output: `fair_benchmark_results.json` (send this back).
 Attach a `FRED_API_KEY` secret + a news dataset for the complete run.
 
+> **Recommended news dataset (covers GFC→COVID→2022, has date+headline):**
+> `dyutidasmahaptra/s-and-p-500-with-financial-news-headlines-20082024`.
+> Backup: `notlucasp/financial-news-headlines`. (Add via Kaggle → Add Input → Datasets.)
+> **Credit-spread note:** use FRED `BAA10Y` for long history — the ICE HY OAS
+> (`BAMLH0A0HYM2`) is relicensed to 2023+ only.
+
 ### `kaggle_edge_and_multimodal.ipynb`  ← run this to close the two open questions
 Focused test of (Q1) **can any model beat a VIX threshold out-of-sample?** and
 (Q2) **does real FinBERT news sentiment add value?** Sweeps the target over
