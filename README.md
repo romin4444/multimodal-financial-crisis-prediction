@@ -190,6 +190,12 @@ drift and a latent `NameError` that local runs missed.)
 
 ---
 
+## Related work
+
+[`drt-network-optimization`](https://github.com/romin4444/drt-network-optimization) applies the same evaluation philosophy to public transit: every recommendation is costed against real Durham Region GTFS data, an earlier version's phantom "$3 M/yr saving" was caught and corrected (documented in the README), and the scope boundary between what the ML model *can* and *cannot* predict is stated explicitly. If the approach here — measure what actually holds, report what doesn't — resonates with you, that project is worth a look.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE). © 2026 **Romin Patel**.
