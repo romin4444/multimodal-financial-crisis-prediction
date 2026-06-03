@@ -34,6 +34,7 @@ logs/
 /kaggle_edge_and_multimodal.ipynb
 /kaggle_fair_benchmark.ipynb
 /kaggle_frontier_benchmark.ipynb
+/FCPS_Report.pdf
 
 # ── Notebook smoke-test artifacts (written to repo root by local validators) ──
 frontier_benchmark.png
