@@ -1,0 +1,102 @@
+{
+  "config": {
+    "horizons": [
+      10,
+      21,
+      63
+    ],
+    "thresholds": [
+      0.07,
+      0.1
+    ],
+    "device": "cuda",
+    "fred": true,
+    "macro": [
+      "credit_spread",
+      "credit_chg_63",
+      "yield_slope",
+      "yield_chg_63",
+      "oil_mom_63",
+      "xasset_corr"
+    ],
+    "tda": [
+      "tda_total",
+      "tda_max_h1"
+    ],
+    "sentiment": [],
+    "rows": 8815
+  },
+  "q1_sweep": [
+    {
+      "H": 10,
+      "thr": 0.07,
+      "base": 0.0343,
+      "VIX_PRAUC": 0.1798,
+      "VIX_lift": 4.272,
+      "price_PRAUC": 0.1283,
+      "price+macro_PRAUC": 0.0837,
+      "price+macro+regime_PRAUC": 0.0741,
+      "+TDA_PRAUC": 0.0665
+    },
+    {
+      "H": 10,
+      "thr": 0.1,
+      "base": 0.0146,
+      "VIX_PRAUC": 0.16,
+      "VIX_lift": 5.97,
+      "price_PRAUC": 0.1318,
+      "price+macro_PRAUC": 0.101,
+      "price+macro+regime_PRAUC": 0.0435,
+      "+TDA_PRAUC": 0.0243
+    },
+    {
+      "H": 21,
+      "thr": 0.07,
+      "base": 0.0919,
+      "VIX_PRAUC": 0.2287,
+      "VIX_lift": 2.454,
+      "price_PRAUC": 0.1505,
+      "price+macro_PRAUC": 0.1015,
+      "price+macro+regime_PRAUC": 0.1138,
+      "+TDA_PRAUC": 0.1119
+    },
+    {
+      "H": 21,
+      "thr": 0.1,
+      "base": 0.0393,
+      "VIX_PRAUC": 0.1778,
+      "VIX_lift": 3.7,
+      "price_PRAUC": 0.1031,
+      "price+macro_PRAUC": 0.079,
+      "price+macro+regime_PRAUC": 0.0716,
+      "+TDA_PRAUC": 0.063
+    },
+    {
+      "H": 63,
+      "thr": 0.07,
+      "base": 0.211,
+      "VIX_PRAUC": 0.3464,
+      "VIX_lift": 1.587,
+      "price_PRAUC": 0.2705,
+      "price+macro_PRAUC": 0.2296,
+      "price+macro+regime_PRAUC": 0.2246,
+      "+TDA_PRAUC": 0.2173
+    },
+    {
+      "H": 63,
+      "thr": 0.1,
+      "base": 0.1364,
+      "VIX_PRAUC": 0.2583,
+      "VIX_lift": 1.731,
+      "price_PRAUC": 0.1758,
+      "price+macro_PRAUC": 0.1397,
+      "price+macro+regime_PRAUC": 0.1394,
+      "+TDA_PRAUC": 0.1403
+    }
+  ],
+  "q1_winners": [],
+  "q1_real_edge": false,
+  "q2": {
+    "ran": false
+  }
+}

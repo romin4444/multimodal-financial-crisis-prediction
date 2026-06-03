@@ -77,7 +77,27 @@ credit leads some crises (2008) but lags vol shocks (COVID), so on average over
 This is now a *robust* null for Q1 — established with the best available data, not
 a data-limitation excuse. The only remaining untested lever is **real news**.
 
-## Run 3 (to do) — real-news multimodal, the last open shot
+## Run 3 — 2026-06-02 (Kaggle GPU, FRED key WORKING, real credit + TDA)
+
+`kaggle_edge_and_multimodal.ipynb` with `fred=true`; macro = credit_spread (BAA10Y),
+credit_chg_63, yield_slope, yield_chg_63, oil_mom_63, xasset_corr; TDA = tda_total,
+tda_max_h1. Artifact: `outputs/edge_multimodal_run3_kaggle_fred.json`.
+
+| Target | base | **VIX** | price | +macro | +regime | +TDA |
+|---|---|---|---|---|---|---|
+| 10d/7% | 0.034 | **0.180** | 0.128 | 0.084 | 0.074 | 0.067 |
+| 10d/10% | 0.015 | **0.160** | 0.132 | 0.101 | 0.044 | 0.024 |
+| 21d/7% | 0.092 | **0.229** | 0.151 | 0.102 | 0.114 | 0.112 |
+| 21d/10% | 0.039 | **0.178** | 0.103 | 0.079 | 0.072 | 0.063 |
+| 63d/7% | 0.211 | **0.346** | 0.271 | 0.230 | 0.225 | 0.217 |
+| 63d/10% | 0.136 | **0.258** | 0.176 | 0.140 | 0.139 | 0.140 |
+
+`q1_real_edge=false`. **Confirms the local Run 2 exactly**: with real full-history
+credit + TDA, on GPU, **no feature set beats VIX on any target**; each added layer
+lowers PR-AUC. Q1 is now a robust null across two independent environments. Q2
+still not run (no news dataset attached).
+
+## Run 4 (to do) — real-news multimodal, the last open shot
 Attach this Kaggle dataset to the GPU notebook (date + headline, covers all crisis
 windows): **`dyutidasmahaptra/s-and-p-500-with-financial-news-headlines-20082024`**
 (S&P 500 + daily headlines, 2008–2024). Backup: `notlucasp/financial-news-headlines`.
