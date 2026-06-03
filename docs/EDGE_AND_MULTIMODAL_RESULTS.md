@@ -97,7 +97,29 @@ credit + TDA, on GPU, **no feature set beats VIX on any target**; each added lay
 lowers PR-AUC. Q1 is now a robust null across two independent environments. Q2
 still not run (no news dataset attached).
 
-## Run 4 (to do) — real-news multimodal, the last open shot
+## Run 4 — 2026-06-03 (Kaggle GPU, FRED + REAL FinBERT news): BOTH questions answered
+
+Full run with everything on: real credit (BAA10Y, 8751 obs), TDA, and **real FinBERT
+sentiment** from `combined.csv` (3,142 headlines, 39% trading-day coverage).
+
+**Q1 — no edge (confirmed 3rd time):** VIX beats every feature set on all 6 targets
+(`q1_real_edge=false`). Adding macro → regime → TDA each lowers PR-AUC.
+
+**Q2 — multimodal thesis RETIRED:** at the best base config (`+TDA`, H=63, thr=7%):
+- PR-AUC **without** sentiment = 0.2173; **with** real sentiment = 0.1995 → **Δ = −0.0178** (it *hurts*).
+- Granger (sentiment → FSI) min p over lags 1–5 = **0.1408** (not significant).
+- `q2.validated = false`.
+
+**Conclusion:** real news sentiment adds no robust out-of-sample value over price+VIX
+for equity-drawdown prediction, and does not Granger-cause forward stress. Combined
+with Q1, **both open questions now have honest null answers** — established with real
+credit data and real FinBERT, under CPCV. This is the complete, defensible result.
+The one positive finding remains FSI ≈ Fed STLFSI (r ≈ 0.76–0.82).
+
+---
+
+### Superseded note (earlier "Run 4 to do")
+Original plan below is now executed (above).
 Attach this Kaggle dataset to the GPU notebook (date + headline, covers all crisis
 windows): **`dyutidasmahaptra/s-and-p-500-with-financial-news-headlines-20082024`**
 (S&P 500 + daily headlines, 2008–2024). Backup: `notlucasp/financial-news-headlines`.
