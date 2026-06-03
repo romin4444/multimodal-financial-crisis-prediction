@@ -117,11 +117,14 @@ def run_granger(fsi: pd.Series, fear: pd.Series, max_lag: int = 10) -> pd.DataFr
 
 def _pearson_at_lag(xv: np.ndarray, yv: np.ndarray, n: int, lag: int) -> float:
     if lag >= 0 and n > lag:
-        r = np.corrcoef(xv[lag:], yv[: n - lag])[0, 1]
+        a, b = xv[lag:], yv[: n - lag]
     elif lag < 0 and n > -lag:
-        r = np.corrcoef(xv[: n + lag], yv[-lag:])[0, 1]
+        a, b = xv[: n + lag], yv[-lag:]
     else:
         return 0.0
+    if a.std() == 0 or b.std() == 0:
+        return 0.0
+    r = np.corrcoef(a, b)[0, 1]
     return float(r) if np.isfinite(r) else 0.0
 
 
