@@ -29,6 +29,12 @@ outputs/integration_master.csv
 outputs/models/
 logs/
 
+# ── Convenience copies of the Kaggle notebooks at the repo root (canonical
+#    versions are tracked under notebooks/) ──────────────────────────────────
+/kaggle_edge_and_multimodal.ipynb
+/kaggle_fair_benchmark.ipynb
+/kaggle_frontier_benchmark.ipynb
+
 # ── Notebook smoke-test artifacts (written to repo root by local validators) ──
 frontier_benchmark.png
 frontier_benchmark_metrics.json
