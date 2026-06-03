@@ -85,9 +85,16 @@ for s in ["AAPL", "JPM", "XOM", "GS"]:
 print("S&P500", market["sp500"].shape)
 
 fred_daily = pd.DataFrame()
+# ── FRED key ──────────────────────────────────────────────────────────────
+# EASIEST: paste your free FRED key on the next line (keep this notebook PRIVATE).
+# If left blank, the notebook falls back to Kaggle Secrets (Add-ons -> Secrets ->
+# FRED_API_KEY, then RESTART the session so the secret is injected).
+FRED_API_KEY = ""   # <<< paste key here, e.g. FRED_API_KEY = "abcd1234..."
 try:
-    from kaggle_secrets import UserSecretsClient
-    key = UserSecretsClient().get_secret("FRED_API_KEY")
+    key = FRED_API_KEY.strip()
+    if not key:
+        from kaggle_secrets import UserSecretsClient
+        key = UserSecretsClient().get_secret("FRED_API_KEY")
     from fredapi import Fred
     fred = Fred(api_key=key)
     raw = {}

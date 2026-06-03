@@ -103,9 +103,12 @@ for s in ["AAPL","JPM","XOM","GS"]:
     except Exception: pass
 
 fred_daily=pd.DataFrame()
+FRED_API_KEY = ""   # <<< paste your free FRED key here (keep notebook PRIVATE); else uses Kaggle Secrets
 try:
-    from kaggle_secrets import UserSecretsClient
-    key=UserSecretsClient().get_secret("FRED_API_KEY")
+    key = FRED_API_KEY.strip()
+    if not key:
+        from kaggle_secrets import UserSecretsClient
+        key = UserSecretsClient().get_secret("FRED_API_KEY")
     from fredapi import Fred; fred=Fred(api_key=key)
     raw={}
     for col,sid in {"credit_spread":"BAA10Y","yield_spread":"T10Y2Y","fed_funds":"FEDFUNDS",
