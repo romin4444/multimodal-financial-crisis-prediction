@@ -254,6 +254,17 @@ def main() -> None:
           f"target_met={fsi_validity.get('target_met')}")
     print(f"  Lead-lag overall  : {ll_results['overall']['interp']} (r={ll_results['overall']['peak_r']:.4f})")
     print(f"  Fusion F1 by crisis: {best_f1}")
+    print()
+    print("  " + "!" * 66)
+    print("  ! CAVEAT: the F1 numbers above are the LEAKY v2 in-sample result.   !")
+    print("  ! They are evaluated on the same crisis windows the HMM labels are  !")
+    print("  ! derived from, so F1 ~ 1.0 is essentially circular.                !")
+    print("  ! Honest, leakage-free out-of-sample numbers come from v3:          !")
+    print("  !   python scripts/v3_run.py                                        !")
+    print("  ! On real data v3 reports PR-AUC ~ 0.08-0.16 — no model beats the   !")
+    print("  ! persistence baseline, and Brier skill is negative across the      !")
+    print("  ! board. That is the result the project actually stands behind.    !")
+    print("  " + "!" * 66)
     print(f"\n  Output files in   : {cfg.paths.output_dir}/")
     for f in sorted(cfg.paths.output_dir.glob("*.*")):
         if f.is_file():

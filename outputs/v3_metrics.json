@@ -46,7 +46,7 @@
       "ece": 0.4653,
       "lift_top_decile": 4.3756
     },
-    "MODEL price-only (LR)": {
+    "MODEL price-only (LR, balanced)": {
       "n": 7471,
       "base_rate": 0.045,
       "pr_auc": 0.157,
@@ -56,46 +56,56 @@
       "ece": 0.3135,
       "lift_top_decile": 3.9291
     },
+    "MODEL price-only (LR)": {
+      "n": 7471,
+      "base_rate": 0.045,
+      "pr_auc": 0.1656,
+      "roc_auc": 0.7124,
+      "brier": 0.0423,
+      "brier_skill": 0.0152,
+      "ece": 0.0172,
+      "lift_top_decile": 3.5719
+    },
     "MODEL +regime (LR)": {
       "n": 7471,
       "base_rate": 0.045,
-      "pr_auc": 0.1082,
-      "roc_auc": 0.7143,
-      "brier": 0.1867,
-      "brier_skill": -3.3474,
-      "ece": 0.2942,
-      "lift_top_decile": 3.185
+      "pr_auc": 0.1287,
+      "roc_auc": 0.7254,
+      "brier": 0.0423,
+      "brier_skill": 0.0156,
+      "ece": 0.0207,
+      "lift_top_decile": 3.1552
     },
     "MODEL +regime+sent (LR)": {
       "n": 7471,
       "base_rate": 0.045,
-      "pr_auc": 0.1039,
-      "roc_auc": 0.6948,
-      "brier": 0.1856,
-      "brier_skill": -3.3217,
-      "ece": 0.29,
-      "lift_top_decile": 3.1552
+      "pr_auc": 0.131,
+      "roc_auc": 0.7048,
+      "brier": 0.0424,
+      "brier_skill": 0.0126,
+      "ece": 0.0208,
+      "lift_top_decile": 3.185
     },
     "MODEL full (RandomForest)": {
       "n": 7471,
       "base_rate": 0.045,
-      "pr_auc": 0.0795,
-      "roc_auc": 0.6619,
-      "brier": 0.1058,
-      "brier_skill": -1.4637,
-      "ece": 0.165,
-      "lift_top_decile": 2.1431
+      "pr_auc": 0.1022,
+      "roc_auc": 0.6986,
+      "brier": 0.043,
+      "brier_skill": -0.0015,
+      "ece": 0.0212,
+      "lift_top_decile": 3.304
     }
   },
   "best_model": "MODEL price-only (LR)",
   "economic_backtest": {
-    "buyhold_sharpe": 0.53,
-    "strategy_sharpe": 0.343,
-    "buyhold_max_drawdown": -0.5678,
-    "strategy_max_drawdown": -0.4997,
-    "buyhold_total_return": 10.5221,
-    "strategy_total_return": 2.0537,
-    "pct_time_in_market": 0.85
+    "buyhold_sharpe": 0.743,
+    "strategy_sharpe": 0.559,
+    "buyhold_max_drawdown": -0.3392,
+    "strategy_max_drawdown": -0.3686,
+    "buyhold_total_return": 4.3481,
+    "strategy_total_return": 1.4892,
+    "pct_time_in_market": 0.8611
   },
   "note": "EXOGENOUS forward-drawdown label; CAUSAL filtered regime probs; purged walk-forward OOS. Compare to v2 in-sample F1=0.99."
 }

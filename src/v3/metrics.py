@@ -92,8 +92,10 @@ def classification_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> Dict[str, 
 def economic_backtest(
     forward_returns: pd.Series,
     crisis_prob: pd.Series,
-    threshold: float = 0.5,
+    threshold: float | None = 0.5,
     ann_factor: int = 252,
+    quantile: float | None = None,
+    quantile_warmup: int = 252,
 ) -> Dict[str, float]:
     """
     De-risking strategy: hold the market when P(crisis) < threshold, else go to
@@ -101,12 +103,27 @@ def economic_backtest(
 
     `forward_returns[t]` is the simple return earned from t to t+1 (next-day),
     so the decision at t uses only information available at t.
+
+    If `quantile` is given (e.g. 0.85), the threshold at each day t is the
+    `quantile` of crisis_prob over [:t] — an expanding, deployable threshold
+    that uses only past predictions. During the `quantile_warmup` window the
+    strategy stays fully in the market (no signal yet). This avoids the look-
+    ahead bug of choosing the threshold from the full out-of-sample series.
     """
     idx = forward_returns.index.intersection(crisis_prob.index)
     r = forward_returns.reindex(idx).fillna(0.0).to_numpy(dtype=float)
     p = crisis_prob.reindex(idx).fillna(0.0).to_numpy(dtype=float)
 
-    in_market = (p < threshold).astype(float)
+    if quantile is not None:
+        # Expanding quantile of past predictions: thr[t] = quantile of p[:t].
+        # Shift by 1 so day t uses information strictly before t.
+        p_series = pd.Series(p, index=idx)
+        thr_series = p_series.expanding(min_periods=quantile_warmup).quantile(quantile).shift(1)
+        thr_arr = thr_series.to_numpy(dtype=float)
+        in_market = np.where(np.isnan(thr_arr), 1.0, (p < thr_arr).astype(float))
+    else:
+        thr = threshold if threshold is not None else 0.5
+        in_market = (p < thr).astype(float)
     strat_r = in_market * r
 
     def _sharpe(x: np.ndarray) -> float:

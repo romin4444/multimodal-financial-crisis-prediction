@@ -135,3 +135,64 @@ class TestWalkForward:
         first_pos = idx.get_loc(first_pred)
         assert first_pos >= 1260 + 21  # nothing predicted before train+embargo
         assert res.n_folds > 0
+
+
+class TestCalibrationFix:
+    """Regression guard for the v3.1 calibration fix: an UN-weighted logistic
+    model must produce trustworthy probabilities (positive Brier skill, low ECE),
+    whereas class_weight='balanced' on a rare-event base rate does not. This
+    pins the behaviour that took Brier skill from ~-3 to >0."""
+
+    def _rare_event_data(self, seed=0, n=4000, base_rate=0.05):
+        import pandas as pd
+        rng = np.random.default_rng(seed)
+        idx = pd.bdate_range("2000-01-01", periods=n)
+        signal = rng.standard_normal(n)
+        # rare positives driven by the signal, at ~base_rate
+        z = -3.0 + 1.4 * signal
+        p = 1 / (1 + np.exp(-z))
+        y = pd.Series((rng.random(n) < p).astype(float), index=idx)
+        X = pd.DataFrame({"f": signal}, index=idx)
+        return X, y
+
+    def test_unweighted_lr_is_well_calibrated(self):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.pipeline import make_pipeline
+        from sklearn.preprocessing import StandardScaler
+        from src.v3.walkforward import WalkForwardConfig, walk_forward_predict
+        from src.v3.metrics import classification_metrics
+
+        X, y = self._rare_event_data()
+        cfg_ = WalkForwardConfig(min_train=1000, step=126, embargo=21, horizon=21)
+
+        def lr_plain():
+            return make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+
+        res = walk_forward_predict(X, y, lr_plain, cfg_)
+        m = classification_metrics(res.oos_label.to_numpy(float),
+                                   res.oos_proba.to_numpy(float))
+        # The probabilities must be trustworthy, not decorative.
+        assert m["brier_skill"] > 0.0, f"expected positive Brier skill, got {m['brier_skill']}"
+        assert m["ece"] < 0.05, f"expected ECE < 0.05, got {m['ece']}"
+
+    def test_balanced_weighting_breaks_calibration(self):
+        """Documents WHY the fix was needed: balanced weighting on a rare event
+        wrecks the probabilities (negative Brier skill, large ECE)."""
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.pipeline import make_pipeline
+        from sklearn.preprocessing import StandardScaler
+        from src.v3.walkforward import WalkForwardConfig, walk_forward_predict
+        from src.v3.metrics import classification_metrics
+
+        X, y = self._rare_event_data()
+        cfg_ = WalkForwardConfig(min_train=1000, step=126, embargo=21, horizon=21)
+
+        def lr_balanced():
+            return make_pipeline(StandardScaler(),
+                                 LogisticRegression(class_weight="balanced", max_iter=1000))
+
+        res = walk_forward_predict(X, y, lr_balanced, cfg_)
+        m = classification_metrics(res.oos_label.to_numpy(float),
+                                   res.oos_proba.to_numpy(float))
+        # Balanced weighting inflates probabilities → calibration collapses.
+        assert m["ece"] > 0.10, f"expected large ECE from balanced weights, got {m['ece']}"

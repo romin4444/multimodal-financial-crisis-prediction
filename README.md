@@ -17,17 +17,35 @@ above all, an **honest, leakage-free, walk-forward evaluation harness**.
 
 Most "crisis prediction" code reports stellar in-sample numbers that evaporate
 out-of-sample. This project's distinguishing feature is that it **measures and
-reports that gap instead of hiding it.**
+reports that gap instead of hiding it** — and then fixes what is genuinely
+fixable without cheating.
 
-| | In-sample (naive) | **Honest walk-forward (v3)** |
-|---|---|---|
-| Crisis F1 | 0.99 | — |
-| Crisis PR-AUC (out-of-sample) | — | **~0.10** (a VIX threshold scores 0.17) |
-| 5-day stock direction, edge over "always-up" | — | **−0.05** (no reliable edge — consistent with weak-form EMH) |
+| Metric (21-day, 10%-drawdown crisis) | In-sample (naive v2) | Honest v3 (balanced, **mis-calibrated**) | **Honest v3.1 (calibrated)** |
+|---|---|---|---|
+| Crisis F1 | 0.99 | — | — |
+| Crisis PR-AUC (out-of-sample) | — | ~0.35 | **~0.36** (VIX-threshold baseline ~0.41) |
+| **Brier skill** (vs base rate; >0 = real skill) | — | **−3.24** | **+0.18** (RF: +0.23) |
+| **ECE** (probability error; lower = better) | — | **0.34** | **0.02** |
+| 5-day stock direction, edge over "always-up" | — | −0.05 | −0.05 (no reliable edge — consistent with weak-form EMH) |
 
-The one result that **survives** rigorous scrutiny: our daily **Financial Stress
-Index reproduces the St. Louis Fed's published STLFSI at r = 0.823** (NBER
-recession AUC = 0.861) using only public data — a genuinely deployable signal.
+**What changed in v3.1 (a legitimate fix, not metric-gaming):** the original v3
+used `class_weight="balanced"`, which on a ~4% base rate inflated every predicted
+probability ~20×. Ranking (ROC/PR-AUC) was fine, but the *probabilities* — which
+are the actual product of a risk tool — were unusable (Brier skill ≈ −3, ECE ≈
+0.34). Removing the re-weighting lets the model see the true base rate, moving
+**Brier skill from −3.24 to +0.18 and ECE from 0.34 to 0.02 with PR-AUC unchanged
+or better**, and no leakage. The de-risking economic backtest now also sets its
+threshold on the *first half* of the OOS window only (deployable), and beats
+buy-and-hold on Sharpe and max-drawdown. Reproduce with `python scripts/v3_run.py`.
+
+The VIX-threshold baseline still leads on raw PR-AUC ranking — that is the honest
+truth and we keep it in the table rather than burying it.
+
+The one result that **survives** rigorous scrutiny end-to-end: our daily
+**Financial Stress Index reproduces the St. Louis Fed's published STLFSI at
+r ≈ 0.76–0.82** (NBER recession AUC ≈ 0.86) using only public data — a genuinely
+deployable signal. (Exact r depends on the data window; the live value is printed
+by `scripts/real_data_run.py`.)
 
 Full diagnosis & roadmap: [`docs/PROJECT_REVIEW_AND_ROADMAP.md`](docs/PROJECT_REVIEW_AND_ROADMAP.md).
 Direction study: [`docs/DIRECTION_RESULTS.md`](docs/DIRECTION_RESULTS.md).
@@ -45,6 +63,13 @@ make demo            # or: python scripts/demo_run.py
 
 `make demo` runs the full pipeline end-to-end on cached/synthetic data — no FRED
 key, no internet, no GPU — and writes figures + metrics to `outputs/`.
+
+> ⚠ **`make demo` runs the v2 pipeline**, which prints in-sample F1 ≈ 1.0 on
+> the same crisis windows the labels are derived from. That number is
+> **circular**, not predictive, and the demo now says so on completion. For
+> the honest, leakage-free, out-of-sample numbers shown in the headline table
+> above, run `python scripts/v3_run.py` (needs real S&P 500 + VIX, cached in
+> `data/`).
 
 ---
 
@@ -162,22 +187,24 @@ probability calibration · honest baselines · economic backtest.
 ## Testing & CI
 
 ```bash
-make test             # full pytest suite — 71 tests (live count: CI badge above)
+make test             # full pytest suite — 80 tests collected (live count: CI badge above)
 ```
 
 The suite is **unit + integration**:
 - Unit tests with deterministic synthetic fixtures (incl. explicit look-ahead /
-  causality proofs for the v3 harness).
+  causality proofs for the v3 harness — see `tests/test_v3.py`).
 - **Real integration tests**: a full artifact round-trip through the API
   (`tests/test_api_integration.py` — real joblib save/load + `/predict`, not
   mocked state) and a real FRED-snapshot alignment test
   (`tests/test_data_integration.py`, using the committed `fred_data.csv`).
 
 GitHub Actions runs `pip install -e ".[dev]"` + `pytest` + **blocking** `ruff`
-on every push (Python 3.10 and 3.12). Lint failures fail the build. Heavy NLP
-deps are optional and their tests skip cleanly when torch isn't installed, so CI
-stays fast. (CI already paid for itself once — it caught a scikit-learn version
-drift and a latent `NameError` that local runs missed.)
+on every push (Python 3.10 and 3.12). The ruff job lints `src/`, `tests/`, and
+`scripts/` — these are clean. Notebooks under `notebooks/` are **not** linted
+(they contain typical Jupyter style violations and would otherwise dominate the
+report). Heavy NLP deps are optional and their tests skip cleanly when torch
+isn't installed, so CI stays fast. (CI already paid for itself once — it caught
+a scikit-learn version drift and a latent `NameError` that local runs missed.)
 
 ---
 

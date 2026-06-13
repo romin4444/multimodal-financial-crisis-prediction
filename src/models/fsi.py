@@ -31,6 +31,10 @@ class FSIBuilder:
     def __init__(self) -> None:
         self._scalers: Dict[str, MinMaxScaler] = {}
         self._components: Dict[str, np.ndarray] = {}
+        # Cached train mask + median lookup so update_with_garch and re-scales
+        # reuse the same training-window statistics that build() established.
+        self._train_mask: Optional[np.ndarray] = None
+        self._train_medians: Dict[str, float] = {}
 
     def build(
         self,
@@ -58,6 +62,7 @@ class FSIBuilder:
 
         if train_mask is None:
             train_mask = np.ones(len(df), dtype=bool)
+        self._train_mask = train_mask
 
         self._components["vix"] = self._scale("vix", df["vix"], train_mask)
         self._components["garch"] = np.zeros(len(df))  # placeholder
@@ -79,9 +84,25 @@ class FSIBuilder:
         )
         return df, self._components
 
-    def update_with_garch(self, df: pd.DataFrame, garch_var: pd.Series) -> pd.DataFrame:
-        """Replace zero GARCH placeholder with fitted conditional variance."""
-        train_mask = np.ones(len(df), dtype=bool)
+    def update_with_garch(
+        self,
+        df: pd.DataFrame,
+        garch_var: pd.Series,
+        train_mask: Optional[np.ndarray] = None,
+    ) -> pd.DataFrame:
+        """Replace zero GARCH placeholder with fitted conditional variance.
+
+        Honors the same train_mask as build() so the GARCH MinMaxScaler is fit
+        on the training window only — never on test-period variance.
+        """
+        if train_mask is None:
+            # Prefer the mask passed to build(); fall back to all-ones only if
+            # build() was also called without one.
+            train_mask = (
+                self._train_mask
+                if self._train_mask is not None and len(self._train_mask) == len(df)
+                else np.ones(len(df), dtype=bool)
+            )
         aligned = garch_var.reindex(df.index).ffill().fillna(0)
         df["garch_var"] = aligned.values
         self._components["garch"] = self._scale("garch", aligned, train_mask)
@@ -99,7 +120,17 @@ class FSIBuilder:
 
     def _scale(self, name: str, series: pd.Series, train_mask: np.ndarray) -> np.ndarray:
         sc = MinMaxScaler()
-        vals = series.fillna(series.median()).values.reshape(-1, 1)
+        # Median for NaN fill must come from the training window only —
+        # using series.median() over the full series leaks future values
+        # into pre-train NaN imputation.
+        train_vals = series.values[train_mask]
+        train_vals = train_vals[~np.isnan(train_vals)]
+        if len(train_vals) == 0:
+            fill = 0.0
+        else:
+            fill = float(np.median(train_vals))
+        self._train_medians[name] = fill
+        vals = series.fillna(fill).values.reshape(-1, 1)
         sc.fit(vals[train_mask])  # fit on training portion ONLY
         self._scalers[name] = sc
         return sc.transform(vals).ravel()
