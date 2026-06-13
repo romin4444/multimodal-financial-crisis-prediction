@@ -1,0 +1,45 @@
+name: Feature request
+description: Propose a new feature, baseline, model, or harness change.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FCPS is selective about additions — the bar is "does this change beat
+        the persistence baseline under purged walk-forward, or does it remove
+        a leakage/calibration defect?" Most "what if we added X?" candidates
+        have already been tried (see `docs/EDGE_AND_MULTIMODAL_RESULTS.md`).
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What problem does this solve?
+      description: One paragraph. What's missing today, and what would the proposed change unlock?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Concrete proposal
+      description: |
+        Module / function / API surface. Sketch the smallest viable change.
+        For new features, name the file(s) it would land in.
+    validations:
+      required: true
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Why would this beat the persistence baseline?
+      description: |
+        For new data-source or model proposals only. If you can't make the case
+        on paper, the PR will likely add a feature that monotonically hurts PR-AUC
+        (which is what we already see for regime and sentiment).
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

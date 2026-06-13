@@ -239,8 +239,9 @@ def main() -> None:
         "fusion_f1_target": cfg.fusion.f1_target,
         "data_source": "SYNTHETIC (demo run)",
     }
+    from src.json_utils import safe_json_default
     with open(cfg.paths.output_dir / "metrics_summary.json", "w") as fh:
-        json.dump(metrics, fh, indent=2, default=str)
+        json.dump(metrics, fh, indent=2, default=safe_json_default)
 
     elapsed = time.time() - t0
     print("\n" + "=" * 70)

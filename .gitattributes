@@ -1,0 +1,30 @@
+# ── GitHub linguist overrides ─────────────────────────────────────────────
+# This repo is ~10k LOC of engineered Python with a few notebook artefacts
+# (Kaggle runs + the original capstone notebook). Without these overrides
+# the language bar mis-reports the repo as ~83% Jupyter Notebook, which is
+# wildly misleading for a package that lives under src/.
+
+# Treat every notebook as a vendored artefact, not authored source.
+*.ipynb        linguist-vendored
+
+# Legacy materials (original capstone monolith, milestone PDFs, archived
+# notebooks) are documentation of the project's history, not active source.
+legacy/**      linguist-documentation
+
+# Kaggle run notebooks are exported artefacts mirrored from Kaggle, not
+# the canonical implementation (the .py twins next to them are).
+notebooks/*.ipynb  linguist-generated
+
+# Generated metrics + figures shipped for the report — not source.
+outputs/**     linguist-generated
+
+# ── Line endings: never let Windows convert sources on commit ─────────────
+*.py           text eol=lf
+*.md           text eol=lf
+*.yaml         text eol=lf
+*.yml          text eol=lf
+*.toml         text eol=lf
+*.cfg          text eol=lf
+*.ini          text eol=lf
+*.json         text eol=lf
+Makefile       text eol=lf

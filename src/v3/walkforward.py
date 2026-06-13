@@ -25,6 +25,14 @@ from typing import Callable, List
 import numpy as np
 import pandas as pd
 
+from src.logging_setup import get_logger
+
+log = get_logger("v3.walkforward")
+
+
+class WalkForwardError(RuntimeError):
+    """Raised when no fold ever succeeded — silent NaN OOS is never a valid result."""
+
 
 @dataclass
 class WalkForwardConfig:
@@ -95,9 +103,37 @@ def walk_forward_predict(
                 "train_pos_rate": round(float(ytr_v.mean()), 4),
             })
         except Exception as exc:  # noqa: BLE001
-            fold_log.append({"train_end": str(dates[train_end - 1].date()), "error": str(exc)})
+            # Per-fold exceptions are tolerated (e.g. degenerate single-class
+            # training window), but every such failure is recorded AND the
+            # post-loop guard below will refuse to return an all-NaN result.
+            log.warning(
+                "walk-forward fold failed",
+                extra={
+                    "train_end": str(dates[train_end - 1].date()),
+                    "error": str(exc),
+                    "error_type": type(exc).__name__,
+                },
+            )
+            fold_log.append({
+                "train_end": str(dates[train_end - 1].date()),
+                "error": str(exc),
+                "error_type": type(exc).__name__,
+            })
 
         train_end += config.step
+
+    # Fail loudly if the harness produced nothing — that is never a valid
+    # outcome, and silently returning an all-NaN OOS series has historically
+    # been the most dangerous failure mode of walk-forward backtests.
+    if n_folds == 0:
+        n_attempted = len(fold_log)
+        errors = [f.get("error_type", "skip") for f in fold_log]
+        raise WalkForwardError(
+            f"walk-forward produced 0 successful folds "
+            f"(attempted {n_attempted}; failure modes: {sorted(set(errors))}). "
+            "Refusing to return an all-NaN OOS series. "
+            "Inspect WalkForwardResult.fold_log for per-fold details."
+        )
 
     return WalkForwardResult(
         oos_proba=oos,

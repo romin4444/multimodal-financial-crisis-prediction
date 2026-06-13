@@ -205,13 +205,9 @@ def main() -> dict:
         "note": "EXOGENOUS forward-drawdown label; CAUSAL filtered regime probs; "
                 "purged walk-forward OOS. Compare to v2 in-sample F1=0.99.",
     }
-    def _safe(o):
-        import math
-        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
-            return None
-        return str(o)
+    from src.json_utils import safe_json_default
     with open(cfg.paths.output_dir / "v3_metrics.json", "w") as fh:
-        json.dump(out, fh, indent=2, default=_safe)
+        json.dump(out, fh, indent=2, default=safe_json_default)
 
     print("\n" + "=" * 72)
     print("  VERDICT")

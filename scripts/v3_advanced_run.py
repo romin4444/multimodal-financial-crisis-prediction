@@ -147,11 +147,7 @@ def main() -> dict:
         print(f"  {name:28} {str(m['pr_auc']):>7} {str(m['brier_skill']):>8} {str(m['ece']):>7} {str(m['lift_top_decile']):>9}")
 
     # ── Save + verdict ───────────────────────────────────────────────
-    def _safe(o):
-        import math
-        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
-            return None
-        return str(o)
+    from src.json_utils import safe_json_default
     out = {
         "task": f"crisis (fwd {HORIZON}d drawdown<=-{DD_THRESHOLD:.0%}) — advanced",
         "label_summary": label_summary(label),
@@ -162,7 +158,7 @@ def main() -> dict:
         "real_news_ablation_ran": real_sent_col is not None,
     }
     with open(cfg.paths.output_dir / "v3_advanced_metrics.json", "w") as fh:
-        json.dump(out, fh, indent=2, default=_safe)
+        json.dump(out, fh, indent=2, default=safe_json_default)
 
     print("\n" + "=" * 76)
     print("  VERDICT")

@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import io
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -121,10 +120,7 @@ def LR():
     )
 
 
-def _safe(o):
-    return None if isinstance(o, float) and (math.isnan(o) or math.isinf(o)) else (
-        str(o) if isinstance(o, (np.bool_,)) else o
-    )
+from src.json_utils import safe_json_default as _safe  # noqa: E402
 
 
 def main() -> dict:

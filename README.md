@@ -1,8 +1,10 @@
 # FCPS — Financial Crisis & Stock-Direction Prediction System
 
 [![CI](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-82%20passing-brightgreen.svg)](#testing--ci)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 
 **Author: Romin Patel**  ·  *MBAI 5600G capstone (Group 13), rebuilt into a modular, tested, leakage-free pipeline.*
 
@@ -10,6 +12,12 @@ A multimodal pipeline for financial-market **crisis detection** and **stock-pric
 direction detection**, fusing price regimes (HMM), conditional volatility (GARCH),
 macro stress (FRED), and news sentiment (FinBERT), with SHAP explainability — and,
 above all, an **honest, leakage-free, walk-forward evaluation harness**.
+
+![FCPS daily Financial Stress Index tracks the St Louis Fed's STLFSI (r ≈ 0.76–0.82) using only public market data.](docs/hero_fsi_vs_stlfsi.png)
+
+> The one result that survives rigorous out-of-sample scrutiny: our daily
+> Financial Stress Index reproduces the St. Louis Fed's published STLFSI at
+> **r ≈ 0.76–0.82**, NBER recession AUC ≈ 0.86, using only public market data.
 
 ---
 
@@ -47,8 +55,10 @@ r ≈ 0.76–0.82** (NBER recession AUC ≈ 0.86) using only public data — a g
 deployable signal. (Exact r depends on the data window; the live value is printed
 by `scripts/real_data_run.py`.)
 
+Architecture diagram: [`docs/architecture.md`](docs/architecture.md).
 Full diagnosis & roadmap: [`docs/PROJECT_REVIEW_AND_ROADMAP.md`](docs/PROJECT_REVIEW_AND_ROADMAP.md).
 Direction study: [`docs/DIRECTION_RESULTS.md`](docs/DIRECTION_RESULTS.md).
+Changelog: [`CHANGELOG.md`](CHANGELOG.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
@@ -129,15 +139,21 @@ multimodal-financial-crisis-prediction/
 │   ├── evaluation/            • validation.py
 │   ├── visualization/         • plots.py (8 figures)
 │   ├── api/                   • app.py (FastAPI) · schemas.py
-│   └── v3/                    ★ leakage-free harness
+│   ├── json_utils.py         • shared safe-JSON encoder (bool/NaN/numpy)
+│   └── v3/                    ★ leakage-free harness (15 modules)
 │       ├── labeling.py        • exogenous forward-drawdown target
 │       ├── causal_regime.py   • forward-only (filtered) HMM posteriors
+│       ├── online_features.py • per-fold refit regime/FSI (walk-forward everything)
 │       ├── walkforward.py     • purged, embargoed expanding-window backtest
+│       │                       (raises WalkForwardError on 0 successful folds)
+│       ├── cpcv.py            • combinatorial purged cross-validation
 │       ├── baselines.py       • base-rate / VIX / persistence baselines
 │       ├── metrics.py         • PR-AUC, Brier skill, ECE, lift, economic backtest
 │       ├── calibration.py     • time-series probability calibration
+│       ├── deflated_sharpe.py • Bailey & López de Prado deflated-Sharpe + PBO
 │       ├── macro_features.py  • VIX-orthogonal features (credit, curve, funding)
-│       ├── online_features.py • per-fold refit regime/FSI (walk-forward everything)
+│       ├── vix_orthogonal.py  • Variance Risk Premium + term-structure residuals
+│       ├── tda_features.py    • topological-data-analysis features (TDA)
 │       ├── direction.py       • stock up/down detection
 │       └── hazard.py          • discrete-time survival model
 │

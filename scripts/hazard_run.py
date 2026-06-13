@@ -85,11 +85,7 @@ def main() -> dict:
         print(f"  {h:>8} {str(m.get('c_index')):>9} {str(m.get('Nday_base_rate')):>10} "
               f"{str(m.get('Nday_risk_brier')):>11} {str(m.get('Nday_risk_brier_skill')):>12}")
 
-    def _safe(o):
-        import math
-        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
-            return None
-        return str(o)
+    from src.json_utils import safe_json_default
     out = {
         "task": "discrete-time hazard: P(>=10% drawdown within N days)",
         "drawdown_threshold": DD_THRESHOLD,
@@ -98,7 +94,7 @@ def main() -> dict:
         "results": results,
     }
     with open(cfg.paths.output_dir / "hazard_metrics.json", "w") as fh:
-        json.dump(out, fh, indent=2, default=_safe)
+        json.dump(out, fh, indent=2, default=safe_json_default)
 
     print("\n" + "=" * 72)
     print("  VERDICT")

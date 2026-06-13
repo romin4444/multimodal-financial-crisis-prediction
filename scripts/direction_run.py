@@ -178,13 +178,7 @@ def main() -> dict:
               f"strat_ret={econ['strategy_total_return']:>8} vs BH={econ['buyhold_total_return']:>8}")
 
     # ── Save + verdict ───────────────────────────────────────────────
-    def _safe(o):
-        import math
-        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
-            return None
-        if isinstance(o, pd.Series):
-            return None
-        return str(o)
+    from src.json_utils import safe_json_default
 
     out = {
         "task": f"{HORIZON}-day stock direction (up/down) detection",
@@ -194,7 +188,7 @@ def main() -> dict:
         "economic_backtest": econ_summary,
     }
     with open(cfg.paths.output_dir / "direction_metrics.json", "w") as fh:
-        json.dump(out, fh, indent=2, default=_safe)
+        json.dump(out, fh, indent=2, default=safe_json_default)
 
     # Aggregate edge over majority for ML models
     edges = []

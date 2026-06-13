@@ -253,15 +253,13 @@ def main() -> dict:
     print(f"  Config clears ALL gates (>VIX & PBO<0.5 & DSR>0.95): {any_win}")
     print(f"  FSI vs STLFSI r = {fsi_r}")
 
-    def _safe(o):
-        import math
-        return None if isinstance(o, float) and (math.isnan(o) or math.isinf(o)) else str(o)
+    from src.json_utils import safe_json_default
     out = {"sweep": sweep, "any_beats_vix": bool(winners), "any_wins_all_gates": any_win,
            "fsi_vs_stlfsi_r": fsi_r, "macro_features": MACRO,
            "credit_source": "BAA10Y (Moody's Baa-10Y, full history)"}
     Path("outputs").mkdir(exist_ok=True)
     with open("outputs/run2_macro_edge.json", "w") as fh:
-        json.dump(out, fh, indent=2, default=_safe)
+        json.dump(out, fh, indent=2, default=safe_json_default)
     print("\n  Saved: outputs/run2_macro_edge.json")
     return out
 

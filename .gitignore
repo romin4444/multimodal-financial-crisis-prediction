@@ -24,10 +24,24 @@ results*
 # ── Generated data caches ──────────────────────────────────────────────────
 data/cache/
 
-# ── Generated heavy outputs (keep reports + figures, drop big binaries) ────
+# ── Generated heavy outputs (kept on disk locally but never committed —
+#    figures + the PDF report are release-asset material, not source.
+#    The hero figure lives under docs/ instead.) ───────────────────────────
+outputs/*.png
+outputs/*.pdf
+outputs/*.pptx
 outputs/integration_master.csv
 outputs/models/
 logs/
+
+# ── Presentation / deck artifacts (rebuilt from source, not commit-worthy) ──
+*.pptx
+*.docx
+
+# ── Legacy notebook drafts (Kaggle-export duplicates, ~2.1 MB combined).
+#    Final canonical notebooks live under notebooks/, exported from the
+#    .py twins via scripts/_py_to_ipynb.py. ──────────────────────────────────
+legacy/notebooks/
 
 # ── Convenience copies of the Kaggle notebooks at the repo root (canonical
 #    versions are tracked under notebooks/) ──────────────────────────────────

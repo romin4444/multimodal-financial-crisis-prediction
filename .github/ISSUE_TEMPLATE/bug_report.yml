@@ -1,0 +1,56 @@
+name: Bug report
+description: Something in the pipeline, harness, or API is broken or produces a wrong result.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Before opening, please re-run `python -m pytest -q`
+        and `python scripts/v3_run.py` on a fresh clone to confirm the failure
+        isn't from a stale `outputs/` cache.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: One paragraph. What did you run, what came back, what did you expect?
+      placeholder: "I ran `python scripts/v3_run.py` and the Brier skill came back negative..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimum reproducer
+      description: |
+        The single most useful thing you can provide. A script, a fixture, or the
+        exact `make ...` / `python ...` invocation. "It doesn't reproduce" without
+        a script is very hard to action.
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Repo SHA / release
+      description: Output of `git rev-parse HEAD`, or release tag.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        OS: macOS 14.5 / Ubuntu 22.04 / Windows 11
+        Python: 3.12.2
+        Installed from: requirements.lock / pyproject.toml [dev]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / traceback
+      render: shell

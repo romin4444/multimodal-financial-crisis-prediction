@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "FCPS: Multimodal Financial Crisis & Stock-Direction Prediction System"
+abstract: >
+  A multimodal pipeline for financial-market crisis detection and
+  stock-direction detection, fusing price regimes (HMM), conditional volatility
+  (GARCH), macro stress (FRED), and news sentiment (FinBERT), with SHAP
+  explainability. Distinguished by an honest, leakage-free, walk-forward
+  evaluation harness (exogenous forward-drawdown labels, causal filtered
+  regime posteriors, purged/embargoed expanding-window backtests, calibrated
+  probabilities, and deflated Sharpe / PBO gating) that reports the
+  in-sample / out-of-sample gap instead of hiding it.
+authors:
+  - family-names: Patel
+    given-names: Romin
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+type: software
+license: MIT
+repository-code: "https://github.com/romin4444/multimodal-financial-crisis-prediction"
+url: "https://github.com/romin4444/multimodal-financial-crisis-prediction"
+version: "3.1.0"
+date-released: "2026-06-13"
+keywords:
+  - financial-machine-learning
+  - crisis-prediction
+  - walk-forward
+  - garch
+  - hidden-markov-model
+  - finbert
+  - quantitative-finance
+  - backtesting
+  - probability-calibration
+preferred-citation:
+  type: software
+  title: "FCPS: Multimodal Financial Crisis & Stock-Direction Prediction System"
+  authors:
+    - family-names: Patel
+      given-names: Romin
+  version: "3.1.0"
+  year: 2026
+  url: "https://github.com/romin4444/multimodal-financial-crisis-prediction"

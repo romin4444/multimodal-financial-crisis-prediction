@@ -154,14 +154,10 @@ def main() -> dict:
             "sentiment": "Synthetic VIX-based proxy (FinBERT skipped)",
         },
     }
-    def _json_safe(o):
-        import math
-        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
-            return None
-        return str(o)
+    from src.json_utils import safe_json_default
 
     with open(cfg.paths.output_dir / "metrics_summary.json", "w") as fh:
-        json.dump(metrics, fh, indent=2, default=_json_safe)
+        json.dump(metrics, fh, indent=2, default=safe_json_default)
 
     elapsed = time.time() - t0
     print("\n" + "=" * 70)

@@ -190,7 +190,10 @@ def validate_fsi(fsi: pd.Series, df: pd.DataFrame) -> dict:
         out["stlfsi_r"] = None
         target_met = (out["nber_roc_auc"] or 0) >= 0.80
 
-    out["target_met"] = target_met
+    # Force a Python bool — scipy/numpy comparison returns numpy.bool_, which
+    # json.dump(..., default=str) stringifies as "True", an inconsistency that
+    # has appeared in committed output JSON.
+    out["target_met"] = bool(target_met)
     log.info("FSI validity", extra=out)
 
     if not target_met:
