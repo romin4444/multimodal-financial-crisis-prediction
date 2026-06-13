@@ -1,7 +1,7 @@
 # FCPS — Financial Crisis & Stock-Direction Prediction System
 
 [![CI](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen.svg)](#testing--ci)
+[![Tests](https://img.shields.io/badge/tests-93%20passing-brightgreen.svg)](#testing--ci)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
@@ -107,9 +107,12 @@ deployable signal. (Exact r depends on the data window; the live value is printe
 by `scripts/real_data_run.py`.)
 
 Architecture diagram: [`docs/architecture.md`](docs/architecture.md).
-Full diagnosis & roadmap: [`docs/PROJECT_REVIEW_AND_ROADMAP.md`](docs/PROJECT_REVIEW_AND_ROADMAP.md).
+**v4 institutional roadmap (latest): [`docs/INSTITUTIONAL_ROADMAP_V4.md`](docs/INSTITUTIONAL_ROADMAP_V4.md)** —
+prioritized backlog, success bars, paper spine. v3.3 ships the P0 items.
+Full diagnosis & history: [`docs/PROJECT_REVIEW_AND_ROADMAP.md`](docs/PROJECT_REVIEW_AND_ROADMAP.md).
 Direction study: [`docs/DIRECTION_RESULTS.md`](docs/DIRECTION_RESULTS.md).
 Changelog: [`CHANGELOG.md`](CHANGELOG.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Single-cell Kaggle showcase: [`notebooks/kaggle_fcps_v4_results.ipynb`](notebooks/kaggle_fcps_v4_results.ipynb).
 
 ---
 
@@ -142,8 +145,9 @@ key, no internet, no GPU — and writes figures + metrics to `outputs/`.
 | **v3** (honest) | `scripts/v3_run.py` | Leakage-free: exogenous forward-drawdown target, **causal** (forward-only) regime probabilities, **purged walk-forward**, real baselines, calibration. |
 | **v3 direction** | `scripts/direction_run.py` | Next-N-day up/down detection per ticker (AAPL, JPM, XOM, GS, ^GSPC) on the same honest harness. |
 | **v3 advanced** | `scripts/v3_advanced_run.py` | Adds probability calibration, VIX-orthogonal macro features, and online (per-fold refit) regime/FSI. |
-| **hazard** | `scripts/hazard_run.py` | Discrete-time survival model: P(≥10% drawdown within N days). |
+| **hazard** ★ (v3.3) | `scripts/hazard_run.py` | Discrete-time survival model: P(≥10% drawdown within N days). v3.3 drops `class_weight="balanced"` and isotonic-calibrates the N-day cumulative incidence on a held-out training slice. C-index ≈ 0.86 on real S&P 500; **Brier skill improved from the original −2.07 to −0.22 (raw) / −0.11 (calibrated, h=63)** — ~10× the v3.1 fusion-calibration story repeated. |
 | **risk overlay** ★ | `scripts/risk_overlay_run.py` | Operationalizes the project's honest finding: directions/timing aren't reliably predictable, but **risk is rankable and reducible**. Causal stress signal scales SPY exposure; stationary block bootstrap CI + Deflated Sharpe. On real 1993–2026 SPY+VIX: **max-drawdown −55% → −37% (significant, 95% CI [+5.9pp, +36.2pp])**, Sharpe edge CI straddles zero (EMH-consistent). Kaggle-runnable. |
+| **vintage FSI validate** ★ (v3.3) | `scripts/fsi_vintage_validate.py` | Per v4-roadmap §2.3: validates daily FSI vs the *contemporaneous* (vintage / ALFRED, not revised) STLFSI on a grid of as-of dates. Success bar: r ≥ 0.70 on point-in-time data. Needs `FRED_API_KEY`; CI-safe if absent. |
 
 ---
 
@@ -255,7 +259,7 @@ probability calibration · honest baselines · economic backtest.
 ## Testing & CI
 
 ```bash
-make test             # full pytest suite — 91 tests collected (live count: CI badge above)
+make test             # full pytest suite — 93 tests collected (live count: CI badge above)
 ```
 
 The suite is **unit + integration**:

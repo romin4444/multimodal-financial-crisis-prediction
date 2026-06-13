@@ -195,6 +195,15 @@ def train_fusion(fusion: pd.DataFrame) -> Tuple[TrainedFusion, Dict[str, List[Mo
     rf = cfg.fusion.random_forest
     gb = cfg.fusion.gradient_boosting
 
+    # ---------------------------------------------------------------- #
+    # ⚠ v2 LEGACY: class_weight="balanced" is RETAINED here intentionally.
+    # This module powers the original (v2) fusion track, whose in-sample
+    # F1 ≈ 1.0 is documented as circular (the README and the demo banner
+    # both flag it). The v3.1 calibration fix (drop "balanced") lives in
+    # scripts/v3_run.py, and the v3.3 hazard fix lives in src/v3/hazard.py
+    # — copy THOSE patterns, not this one, when building new evaluators.
+    # See docs/INSTITUTIONAL_ROADMAP_V4.md §2.1 and §2.6 for context.
+    # ---------------------------------------------------------------- #
     base_models = {
         "Logistic Regression": make_pipeline(
             StandardScaler(),

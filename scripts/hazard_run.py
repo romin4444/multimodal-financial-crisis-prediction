@@ -73,24 +73,39 @@ def main() -> dict:
     te_mask = ~tr_mask
     print(f"[3] Train {idx[0].date()}->{idx[cut-1].date()} | Test {idx[cut].date()}->{idx[-1].date()}")
 
-    fit = fit_hazard(panel, feat, feat_cols, tr_mask)
-
     print("\n[4] Out-of-sample hazard evaluation:\n")
-    print(f"  {'Horizon':>8} {'C-index':>9} {'Nday base':>10} {'Nday Brier':>11} {'Brier skill':>12}")
-    print("  " + "-" * 54)
+    # v3.3: report BOTH the raw 1-(1-h)^N risk AND the isotonic-calibrated
+    # version so the calibration uplift is plain.
+    print(f"  {'Horizon':>8} {'C-index':>9} {'BaseRate':>9} {'BSS_raw':>9} {'BSS_cal':>9}")
+    print("  " + "-" * 56)
     results = {}
+    feature_cols_used: list[str] = []
     for h in HORIZONS:
-        m = evaluate_hazard(fit, panel, feat, horizon=h, test_mask=te_mask, drawdown_threshold=DD_THRESHOLD)
+        # The per-step hazard model is horizon-independent, but the isotonic
+        # calibrator IS horizon-specific (it maps 1-(1-h)^N to realized N-day
+        # frequency). So we refit per horizon — model fit is cheap.
+        fit = fit_hazard(
+            panel, feat, feat_cols, tr_mask,
+            horizon=h, calibrate=True, drawdown_threshold=DD_THRESHOLD,
+        )
+        feature_cols_used = fit.feature_cols
+        m = evaluate_hazard(
+            fit, panel, feat, horizon=h, test_mask=te_mask,
+            drawdown_threshold=DD_THRESHOLD,
+        )
         results[f"h{h}"] = m
-        print(f"  {h:>8} {str(m.get('c_index')):>9} {str(m.get('Nday_base_rate')):>10} "
-              f"{str(m.get('Nday_risk_brier')):>11} {str(m.get('Nday_risk_brier_skill')):>12}")
+        print(f"  {h:>8} {str(m.get('c_index')):>9} "
+              f"{str(m.get('Nday_base_rate')):>9} "
+              f"{str(m.get('Nday_risk_brier_skill_raw')):>9} "
+              f"{str(m.get('Nday_risk_brier_skill_calibrated')):>9}")
 
     from src.json_utils import safe_json_default
     out = {
         "task": "discrete-time hazard: P(>=10% drawdown within N days)",
         "drawdown_threshold": DD_THRESHOLD,
         "n_onsets": n_onsets,
-        "feature_cols": fit.feature_cols,
+        "feature_cols": feature_cols_used,
+        "calibration": "isotonic on held-out 20% of train mask (per horizon)",
         "results": results,
     }
     with open(cfg.paths.output_dir / "hazard_metrics.json", "w") as fh:

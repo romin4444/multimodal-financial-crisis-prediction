@@ -1,7 +1,7 @@
 {
   "task": "discrete-time hazard: P(>=10% drawdown within N days)",
   "drawdown_threshold": 0.1,
-  "n_onsets": 58,
+  "n_onsets": 85,
   "feature_cols": [
     "vol_21d",
     "vix",
@@ -14,24 +14,35 @@
     "xasset_corr",
     "duration"
   ],
+  "calibration": "isotonic on held-out 20% of train mask (per horizon)",
   "results": {
     "h21": {
-      "n": 2660,
-      "n_onsets": 33,
-      "c_index": 0.839,
+      "n": 827,
+      "n_onsets": 20,
+      "c_index": 0.8579,
       "horizon": 21,
-      "Nday_risk_brier": 0.3147,
-      "Nday_risk_brier_skill": -2.073,
-      "Nday_base_rate": 0.1158
+      "Nday_base_rate": 0.237,
+      "Nday_risk_brier_raw": 0.2213,
+      "Nday_risk_brier_skill_raw": -0.224,
+      "Nday_risk_brier_calibrated": 0.2218,
+      "Nday_risk_brier_skill_calibrated": -0.2267,
+      "calibrated": true,
+      "Nday_risk_brier": 0.2218,
+      "Nday_risk_brier_skill": -0.2267
     },
     "h63": {
-      "n": 2660,
-      "n_onsets": 33,
-      "c_index": 0.839,
+      "n": 827,
+      "n_onsets": 20,
+      "c_index": 0.8579,
       "horizon": 63,
-      "Nday_risk_brier": 0.3716,
-      "Nday_risk_brier_skill": -1.0291,
-      "Nday_base_rate": 0.2414
+      "Nday_base_rate": 0.5671,
+      "Nday_risk_brier_raw": 0.2958,
+      "Nday_risk_brier_skill_raw": -0.2048,
+      "Nday_risk_brier_calibrated": 0.2724,
+      "Nday_risk_brier_skill_calibrated": -0.1096,
+      "calibrated": true,
+      "Nday_risk_brier": 0.2724,
+      "Nday_risk_brier_skill": -0.1096
     }
   }
 }

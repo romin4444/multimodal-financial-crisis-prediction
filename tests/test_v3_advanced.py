@@ -156,3 +156,88 @@ class TestHazard:
         fit = fit_hazard(panel, feat, ["vol_21d", "drawdown_63", "mom_21d"], tr)
         m = evaluate_hazard(fit, panel, feat, horizon=21, test_mask=~tr, drawdown_threshold=0.10)
         assert "c_index" in m and "n" in m
+
+    def _many_crash_close(self, seed=11):
+        """Longer series with several crash + RECOVERY episodes so both the
+        model-train and calibration-holdout slices have multiple onsets to
+        train on. Each crash drops the price ~15% over 20 days, then a
+        recovery period puts a new trailing peak above the prior one so the
+        next crash registers as a fresh onset."""
+        rng = np.random.default_rng(seed)
+        idx = pd.bdate_range("1990-01-01", periods=4000)
+        ret = rng.normal(0.0006, 0.008, 4000)
+        for start in (300, 700, 1200, 1700, 2300, 2900, 3400, 3700):
+            # 20-day crash, then a strong recovery to make a new peak
+            ret[start:start + 20] = rng.normal(-0.012, 0.02, 20)
+            ret[start + 20:start + 120] = rng.normal(0.003, 0.008, 100)
+        close = pd.Series(100 * np.exp(np.cumsum(ret)), index=idx)
+        return close
+
+    def test_calibrated_incidence_is_within_unit_interval(self):
+        """v3.3 — passing horizon=N to fit_hazard must attach a calibrator
+        whose output stays in [0, 1] and whose ranking matches the raw."""
+        from src.v3.hazard import drawdown_panel, fit_hazard
+        close = self._many_crash_close()
+        idx = close.index
+        feat = pd.DataFrame({
+            "vol_21d": np.log(close / close.shift(1)).rolling(21).std().bfill() * np.sqrt(252),
+            "drawdown_63": (close / close.rolling(63).max() - 1).bfill(),
+            "mom_21d": close.pct_change(21).bfill(),
+        }, index=idx)
+        panel = drawdown_panel(close, threshold=0.10)
+        cut = int(len(idx) * 0.6)
+        tr = np.zeros(len(idx), dtype=bool)
+        tr[:cut] = True
+        fit = fit_hazard(
+            panel, feat, ["vol_21d", "drawdown_63", "mom_21d"], tr,
+            horizon=21, calibrate=True, drawdown_threshold=0.10,
+        )
+        assert fit.incidence_calibrator is not None, (
+            "horizon was supplied but no calibrator was attached"
+        )
+        assert fit.calibrated_horizon == 21
+        # cumulative_incidence needs the "duration" covariate present —
+        # join it from the panel before predicting.
+        te = feat.iloc[cut:].copy()
+        te["duration"] = panel["duration"].iloc[cut:]
+        raw = fit.cumulative_incidence(te, horizon=21, calibrated=False)
+        cal = fit.cumulative_incidence(te, horizon=21, calibrated=True)
+        assert ((raw >= 0) & (raw <= 1)).all()
+        assert ((cal >= 0) & (cal <= 1)).all()
+        # Isotonic is non-decreasing by construction, but maps many distinct
+        # inputs to the same output (step function) — collapsed ties drag
+        # Kendall's tau below 1. The real invariant is: NO strict-order pair
+        # gets inverted. Check the weaker rank-correlation threshold (catches
+        # a destroyed ranking) plus the no-inversion invariant directly.
+        from scipy.stats import kendalltau
+        tau, _ = kendalltau(raw, cal)
+        assert tau > 0.80, f"isotonic broke ranking (tau={tau:.3f})"
+        # No inversion: every strict-order pair in raw must be non-strict in cal.
+        order = np.argsort(raw)
+        sorted_cal = cal[order]
+        assert (np.diff(sorted_cal) >= -1e-9).all(), "isotonic produced an inversion"
+
+    def test_no_class_weight_balanced_in_hazard_fit(self):
+        """Regression guard: v3.3 explicitly dropped class_weight='balanced'
+        from the hazard LR (the v4-roadmap §2.1 finding). If anyone copies
+        it back in, this test must scream."""
+        from src.v3.hazard import drawdown_panel, fit_hazard
+        close = self._crashy_close()
+        idx = close.index
+        feat = pd.DataFrame({
+            "vol_21d": np.log(close / close.shift(1)).rolling(21).std().bfill() * np.sqrt(252),
+            "drawdown_63": (close / close.rolling(63).max() - 1).bfill(),
+            "mom_21d": close.pct_change(21).bfill(),
+        }, index=idx)
+        panel = drawdown_panel(close, threshold=0.10)
+        tr = np.ones(len(idx), dtype=bool)
+        fit = fit_hazard(
+            panel, feat, ["vol_21d", "drawdown_63", "mom_21d"], tr,
+            calibrate=False,
+        )
+        lr = fit.model.named_steps["logisticregression"]
+        # sklearn stores the resolved value; None == default ("not balanced").
+        assert lr.class_weight is None, (
+            "Hazard LR is using class_weight='balanced' again — this destroys "
+            "calibration on the ~4% base rate. See v3.3 / v4-roadmap §2.1."
+        )

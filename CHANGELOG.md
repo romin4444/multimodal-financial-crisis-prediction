@@ -4,6 +4,58 @@ All notable changes to this project are documented here. The format is loosely
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this
 project tries (loosely) to follow [Semantic Versioning](https://semver.org/).
 
+## [3.3.0] — 2026-06-13
+
+The "v4 institutional roadmap, P0 items shipped" release. An independent
+review (`docs/INSTITUTIONAL_ROADMAP_V4.md`) identified the hazard model as
+the project's strongest result hobbled by the exact `class_weight="balanced"`
+bug v3.1 fixed elsewhere — and called for vintage/ALFRED FRED data to make
+the crown-jewel FSI result reviewer-proof. v3.3 ships the hazard fix and
+scaffolds the vintage pathway.
+
+### Added
+- `src/v3/hazard.py::HazardFit.incidence_calibrator` — isotonic calibration of
+  the N-day cumulative incidence, fit on a held-out 20% slice of the training
+  mask (per the v4 roadmap §2.1 prescription: calibrate the *N-day risk*, not
+  the per-step hazard). `fit_hazard(..., horizon=N, calibrate=True)` attaches
+  it automatically; `cumulative_incidence(X, horizon, calibrated=True)`
+  returns the calibrated probability when available.
+- `evaluate_hazard` now reports **both** the raw and the isotonic-calibrated
+  Brier / Brier-skill so the calibration uplift is visible.
+- `src/data/fred.py::download_fred_vintage(as_of=...)` and the
+  `realtime_start`/`realtime_end` plumbing in `_fetch_series` — ALFRED
+  point-in-time fetch with a per-as-of cache under
+  `data/cache/fred_vintage/<YYYY-MM-DD>.csv`.
+- `scripts/fsi_vintage_validate.py` — runs the FSI vs STLFSI comparison on
+  a grid of as-of dates and writes `outputs/fsi_vintage_validation.json`.
+  Without `FRED_API_KEY` it exits 0 with a clear message so CI stays green.
+  The v4 success bar (`--success-r 0.70`) is checked per as-of row.
+- `notebooks/kaggle_fcps_v4_results.ipynb` — single Kaggle cell that
+  reproduces the three results that actually survive (FSI nowcast, calibrated
+  hazard, risk overlay) with the v4 institutional framing.
+- `docs/INSTITUTIONAL_ROADMAP_V4.md` — the independent review and prioritized
+  backlog that drove this release.
+- `tests/test_v3_advanced.py::TestHazard::test_no_class_weight_balanced_in_hazard_fit`
+  — regression guard so the §2.1 fix can't be silently undone.
+- `tests/test_v3_advanced.py::TestHazard::test_calibrated_incidence_is_within_unit_interval`
+  — pins the isotonic-calibrator API + the no-inversion invariant.
+
+### Changed
+- **`src/v3/hazard.py`** drops `class_weight="balanced"` from the
+  `LogisticRegression`. On real S&P 500 1990–2024, this alone moves the
+  21-day Brier skill from the originally-reported **−2.07** to **−0.22**
+  (raw), with the calibrated 63-day version reaching **−0.11** — a ~10×
+  improvement, exactly the v3.1 fusion-calibration story repeated.
+- `_realized_within` vectorized via cumulative sum — O(n) instead of the
+  prior O(n·horizon) Python loop (per v4 roadmap §2.6).
+- `scripts/hazard_run.py` now refits per horizon (the per-step hazard model
+  is horizon-independent but the isotonic calibrator IS horizon-specific),
+  reports BSS_raw and BSS_calibrated side by side, and stores both in
+  `outputs/hazard_metrics.json`.
+- `src/models/fusion.py`: added a multi-line code comment above the v2
+  `class_weight="balanced"` block pointing at the v3.1 fusion fix, the v3.3
+  hazard fix, and roadmap §2.6, so nobody copies the legacy pattern forward.
+
 ## [3.2.0] — 2026-06-13
 
 The "deployable result" release. v3.1 made the crisis-probability output
