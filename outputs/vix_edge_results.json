@@ -1,0 +1,134 @@
+{
+  "experiment": "VIX-orthogonal (Variance Risk Premium) edge test",
+  "data": {
+    "rows": 8815,
+    "start": "1990-01-03",
+    "end": "2024-12-30",
+    "option_surface_feeds_present": {
+      "vix9d": false,
+      "vix3m": false,
+      "skew": false
+    }
+  },
+  "vrp_orthogonality_vs_vix": {
+    "corr_with_vix": -0.1377,
+    "orthogonal_frac": 0.981
+  },
+  "horizons": [
+    10,
+    21,
+    63
+  ],
+  "thresholds": [
+    0.07,
+    0.1
+  ],
+  "sweep": [
+    {
+      "H": 10,
+      "thr": 0.07,
+      "base": 0.0345,
+      "VIX_ECDF": 0.1798,
+      "VIX_lr": 0.1074,
+      "price": 0.13,
+      "price+VRP": 0.0963,
+      "price+VRP_resid": 0.1052,
+      "brier_skill_priceVRP": -0.4586,
+      "ece_priceVRP": 0.0869,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.1143,
+      "DSR": 0.9935,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 10,
+      "thr": 0.1,
+      "base": 0.0147,
+      "VIX_ECDF": 0.1602,
+      "VIX_lr": 0.1415,
+      "price": 0.1303,
+      "price+VRP": 0.0508,
+      "price+VRP_resid": 0.0477,
+      "brier_skill_priceVRP": -7.118,
+      "ece_priceVRP": 0.2412,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.0,
+      "DSR": 0.9916,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 21,
+      "thr": 0.07,
+      "base": 0.0918,
+      "VIX_ECDF": 0.2287,
+      "VIX_lr": 0.1639,
+      "price": 0.152,
+      "price+VRP": 0.1496,
+      "price+VRP_resid": 0.1508,
+      "brier_skill_priceVRP": -0.0866,
+      "ece_priceVRP": 0.0605,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.4143,
+      "DSR": 0.9837,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 21,
+      "thr": 0.1,
+      "base": 0.0395,
+      "VIX_ECDF": 0.1778,
+      "VIX_lr": 0.0923,
+      "price": 0.0962,
+      "price+VRP": 0.0709,
+      "price+VRP_resid": 0.0783,
+      "brier_skill_priceVRP": -0.4989,
+      "ece_priceVRP": 0.1005,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.2857,
+      "DSR": 0.9948,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 63,
+      "thr": 0.07,
+      "base": 0.2117,
+      "VIX_ECDF": 0.3464,
+      "VIX_lr": 0.2857,
+      "price": 0.2534,
+      "price+VRP": 0.2085,
+      "price+VRP_resid": 0.2107,
+      "brier_skill_priceVRP": -0.0726,
+      "ece_priceVRP": 0.1084,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.0,
+      "DSR": 0.9883,
+      "WINS_ALL_GATES": false
+    },
+    {
+      "H": 63,
+      "thr": 0.1,
+      "base": 0.1373,
+      "VIX_ECDF": 0.2582,
+      "VIX_lr": 0.1958,
+      "price": 0.173,
+      "price+VRP": 0.1613,
+      "price+VRP_resid": 0.1687,
+      "brier_skill_priceVRP": -0.1609,
+      "ece_priceVRP": 0.1215,
+      "beat_bar": false,
+      "beat_vix_lr": false,
+      "PBO": 0.4571,
+      "DSR": 0.9816,
+      "WINS_ALL_GATES": false
+    }
+  ],
+  "any_beats_vix_ecdf": false,
+  "any_beats_vix_lr_incremental": false,
+  "any_wins_all_gates": false,
+  "note": "Offline cached S&P500+VIX (1990-2024). VRP needs no feed; term-structure/SKEW activate when data/cache/mkt_VIX9D|VIX3M|SKEW.csv exist."
+}
