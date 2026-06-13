@@ -10,6 +10,8 @@ help:
 	@echo "  make install-all  Editable install incl. NLP (torch) + explain + dev"
 	@echo "  make install-lock Reproducible install from requirements.lock"
 	@echo "  make demo         >>> 30-second end-to-end run on cached/synthetic data, NO API key"
+	@echo "  make v3           Honest leakage-free walk-forward backtest (real S&P 500 + VIX)"
+	@echo "  make risk-overlay Stress-scaled SPY exposure overlay — the deployable result"
 	@echo "  make train        Full pipeline (needs FRED_API_KEY + optional news dir)"
 	@echo "  make serve        Launch the prediction API on :8000"
 	@echo "  make test         Run the test suite"
@@ -35,6 +37,10 @@ v3:
 
 direction:
 	python scripts/direction_run.py
+
+# ── Risk overlay (the deployable result: rankable risk, not predictable returns)
+risk-overlay:
+	python scripts/risk_overlay_run.py
 
 # ── Full pipeline / API ─────────────────────────────────────────────────────────
 train:

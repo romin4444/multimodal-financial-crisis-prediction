@@ -4,6 +4,37 @@ All notable changes to this project are documented here. The format is loosely
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this
 project tries (loosely) to follow [Semantic Versioning](https://semver.org/).
 
+## [3.2.0] — 2026-06-13
+
+The "deployable result" release. v3.1 made the crisis-probability output
+trustworthy; v3.2 ships the actual end-use case the project has always been
+heading toward — a leakage-free risk overlay that converts the rankable-risk
+finding into a real reduction in drawdown.
+
+### Added
+- `scripts/risk_overlay_run.py` — stress-scaled risk overlay on SPY:
+  vol-targeting + risk-off cut when an *expanding-window* stress z-score
+  (VIX + trailing RV + drawdown) is in its top decile. Position at t+1
+  uses only data through close of t (`.shift(1)` + asserted alignment).
+  Reports: bootstrap CI on Sharpe-diff and max-drawdown reduction
+  (Politis–Romano stationary block bootstrap, B = 2000, expected block
+  21d), and Deflated Sharpe Ratio (Bailey & López de Prado 2014) against
+  the vol-target grid we searched.
+  On real 1993–2026 SPY+VIX: drawdown −55.2% → −37.1%
+  (95% CI [+5.9pp, +36.2pp], significant); Sharpe edge +0.088
+  (95% CI [−0.086, +0.273], not significant, EMH-consistent).
+  Kaggle-portable (single self-contained file, synthetic fallback when
+  offline). `make risk-overlay` target added.
+- `tests/test_risk_overlay.py` — 9 regression tests pinning the three
+  properties the overlay depends on: weights are causal (TestCausalWeights
+  perturbs the future and asserts today's weight is byte-identical),
+  bootstrap is reproducible under a fixed seed, and per-period Sharpe
+  stays below 0.20 (anything higher = suspected lookahead leak).
+
+### Changed
+- README adds the risk-overlay headline table and a row in the evaluation-
+  tracks table. The deployable result is now stated explicitly above the fold.
+
 ## [3.1.0] — 2026-06-13
 
 The "calibration honesty" release. Out-of-sample ranking metrics in v3 were

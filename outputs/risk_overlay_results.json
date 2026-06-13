@@ -1,0 +1,66 @@
+{
+  "data_source": "REAL (yfinance SPY + ^VIX)",
+  "selected_target_ann_vol": 0.1,
+  "config": {
+    "start": "1993-01-29",
+    "end": null,
+    "target_ann_vol": 0.12,
+    "vol_lookback": 21,
+    "w_max": 1.0,
+    "w_min": 0.0,
+    "stress_cut_quantile": 0.9,
+    "stress_cut_factor": 0.5,
+    "cost_bps": 2.0,
+    "trading_days": 252,
+    "bootstrap_B": 2000,
+    "block_len": 21,
+    "seed": 7
+  },
+  "vol_target_grid": [
+    0.08,
+    0.1,
+    0.12,
+    0.14,
+    0.16,
+    0.18,
+    0.2
+  ],
+  "n_days": 8399,
+  "avg_exposure": 0.7110535155532913,
+  "ann_turnover": 5.12673535890259,
+  "buy_and_hold": {
+    "cagr": 0.1081839040929109,
+    "vol": 0.18585712075627356,
+    "sharpe": 0.5526963538303657,
+    "maxdd": -0.5518943786008925,
+    "calmar": 0.19602284112254942
+  },
+  "risk_overlay": {
+    "cagr": 0.06597356735928983,
+    "vol": 0.09897308803092465,
+    "sharpe": 0.6455141555049274,
+    "maxdd": -0.3706808821638653,
+    "calmar": 0.17797941715840954
+  },
+  "bootstrap": {
+    "sharpe_diff_ann": {
+      "mean": 0.08802782339938901,
+      "lo": -0.08613120708808977,
+      "hi": 0.2731559305993739,
+      "p_le_0": 0.174
+    },
+    "maxdd_reduction": {
+      "mean": 0.19016350611555555,
+      "lo": 0.05908727447038228,
+      "hi": 0.36194920442763767,
+      "p_le_0": 0.0005
+    }
+  },
+  "deflated_sharpe": {
+    "sr_hat_per_period": 0.04066356960090272,
+    "sr0_per_period": 0.0017862524102696092,
+    "deflated_sharpe_prob": 0.9997828239771233,
+    "n_trials": 7,
+    "T": 8399
+  }
+}

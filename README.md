@@ -1,7 +1,7 @@
 # FCPS — Financial Crisis & Stock-Direction Prediction System
 
 [![CI](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/romin4444/multimodal-financial-crisis-prediction/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-82%20passing-brightgreen.svg)](#testing--ci)
+[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen.svg)](#testing--ci)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://docs.astral.sh/ruff/)
@@ -72,6 +72,34 @@ plausibly carry the RF positive. Those feeds aren't bundled in the offline
 cache; see [`docs/EDGE_AND_MULTIMODAL_RESULTS.md`](docs/EDGE_AND_MULTIMODAL_RESULTS.md)
 for what's been tried.
 
+### And the result that's actually deployable
+
+If predicting *direction* and *timing* is hard, *risk* is rankable and
+reducible — and that's what `scripts/risk_overlay_run.py` operationalizes.
+A causal stress signal (VIX + trailing realized vol + drawdown, z-scored on
+an expanding window) scales SPY exposure between 0% and 100%. On real
+1993–2026 SPY+VIX, with 2 bps round-trip costs and a 21-day expected
+block-length stationary bootstrap (B = 2000):
+
+| | Buy & Hold | Risk overlay |
+|---|---|---|
+| CAGR | 10.82% | 6.60% |
+| Vol | 18.59% | 9.90% |
+| Sharpe | 0.55 | 0.65 |
+| **Max drawdown** | **−55.19%** | **−37.07%** |
+| Calmar | 0.20 | 0.18 |
+
+- **Max-drawdown reduction: +19.0pp, 95% CI [+5.9pp, +36.2pp] — *significant*.**
+- Sharpe edge: +0.088, 95% CI [−0.086, +0.273] — **not significant**, exactly
+  as weak-form EMH predicts. The script prints both.
+- Deflated Sharpe Prob (P[true SR > 0 after correcting for 7 trials in the
+  vol-target grid]) = 1.000 on real data.
+
+This is the honest pitch: the overlay's job is risk reduction, not return.
+The drawdown CI clears zero, the Sharpe CI doesn't, and the project reports
+both. The script is also Kaggle-runnable as a standalone cell (falls back to
+synthetic data when offline). See `scripts/risk_overlay_run.py`.
+
 The one result that **survives** rigorous scrutiny end-to-end: our daily
 **Financial Stress Index reproduces the St. Louis Fed's published STLFSI at
 r ≈ 0.76–0.82** (NBER recession AUC ≈ 0.86) using only public data — a genuinely
@@ -106,7 +134,7 @@ key, no internet, no GPU — and writes figures + metrics to `outputs/`.
 
 ---
 
-## Two evaluation tracks
+## Evaluation tracks
 
 | Track | Script | What it does |
 |---|---|---|
@@ -115,6 +143,7 @@ key, no internet, no GPU — and writes figures + metrics to `outputs/`.
 | **v3 direction** | `scripts/direction_run.py` | Next-N-day up/down detection per ticker (AAPL, JPM, XOM, GS, ^GSPC) on the same honest harness. |
 | **v3 advanced** | `scripts/v3_advanced_run.py` | Adds probability calibration, VIX-orthogonal macro features, and online (per-fold refit) regime/FSI. |
 | **hazard** | `scripts/hazard_run.py` | Discrete-time survival model: P(≥10% drawdown within N days). |
+| **risk overlay** ★ | `scripts/risk_overlay_run.py` | Operationalizes the project's honest finding: directions/timing aren't reliably predictable, but **risk is rankable and reducible**. Causal stress signal scales SPY exposure; stationary block bootstrap CI + Deflated Sharpe. On real 1993–2026 SPY+VIX: **max-drawdown −55% → −37% (significant, 95% CI [+5.9pp, +36.2pp])**, Sharpe edge CI straddles zero (EMH-consistent). Kaggle-runnable. |
 
 ---
 
@@ -226,7 +255,7 @@ probability calibration · honest baselines · economic backtest.
 ## Testing & CI
 
 ```bash
-make test             # full pytest suite — 82 tests collected (live count: CI badge above)
+make test             # full pytest suite — 91 tests collected (live count: CI badge above)
 ```
 
 The suite is **unit + integration**:
