@@ -28,26 +28,49 @@ out-of-sample. This project's distinguishing feature is that it **measures and
 reports that gap instead of hiding it** — and then fixes what is genuinely
 fixable without cheating.
 
-| Metric (21-day, 10%-drawdown crisis) | In-sample (naive v2) | Honest v3 (balanced, **mis-calibrated**) | **Honest v3.1 (calibrated)** |
+Every number below is from the committed [`outputs/v3_metrics.json`](outputs/v3_metrics.json)
+on the cached 1990–2024 S&P 500 + VIX window. Reproduce with `python scripts/v3_run.py`.
+
+| Metric (21-day, 10%-drawdown crisis, 7,471 OOS days) | In-sample v2 (leaky) | v3 (balanced, mis-calibrated) | **v3.1 (calibrated)** |
 |---|---|---|---|
 | Crisis F1 | 0.99 | — | — |
-| Crisis PR-AUC (out-of-sample) | — | ~0.35 | **~0.36** (VIX-threshold baseline ~0.41) |
-| **Brier skill** (vs base rate; >0 = real skill) | — | **−3.24** | **+0.18** (RF: +0.23) |
-| **ECE** (probability error; lower = better) | — | **0.34** | **0.02** |
+| Crisis PR-AUC out-of-sample (best model) | — | 0.157 | **0.166** (price-only LR) |
+| Crisis PR-AUC, VIX-threshold baseline | — | 0.169 | 0.169 |
+| **Brier skill** vs base rate (>0 = beats climatology) | — | **−3.34** | **+0.015** (price-only LR), **+0.016** (+regime LR) |
+| Brier skill, RandomForest "full multimodal" | — | −1.46 | −0.0015 (still ≤ 0) |
+| **ECE** (probability error; lower is better) | — | **0.31** | **0.017** |
 | 5-day stock direction, edge over "always-up" | — | −0.05 | −0.05 (no reliable edge — consistent with weak-form EMH) |
 
 **What changed in v3.1 (a legitimate fix, not metric-gaming):** the original v3
 used `class_weight="balanced"`, which on a ~4% base rate inflated every predicted
 probability ~20×. Ranking (ROC/PR-AUC) was fine, but the *probabilities* — which
 are the actual product of a risk tool — were unusable (Brier skill ≈ −3, ECE ≈
-0.34). Removing the re-weighting lets the model see the true base rate, moving
-**Brier skill from −3.24 to +0.18 and ECE from 0.34 to 0.02 with PR-AUC unchanged
-or better**, and no leakage. The de-risking economic backtest now also sets its
-threshold on the *first half* of the OOS window only (deployable), and beats
-buy-and-hold on Sharpe and max-drawdown. Reproduce with `python scripts/v3_run.py`.
+0.31). Removing the re-weighting lets the model see the true base rate, flipping
+**Brier skill from −3.34 to slightly positive** for the best-performing models
+and collapsing **ECE from 0.31 to 0.017**, with PR-AUC unchanged-or-better and
+no leakage. The probabilities went from "decorative" to "trustworthy at the
+calibration level the harness measures."
 
-The VIX-threshold baseline still leads on raw PR-AUC ranking — that is the honest
-truth and we keep it in the table rather than burying it.
+Three additional honest readings from the same artifact:
+
+1. **No model beats the VIX-threshold baseline** on PR-AUC. The closest is
+   price-only LR at 0.166 vs the baseline's 0.169. Adding regime, sentiment,
+   or the full RandomForest fusion *monotonically degrades* PR-AUC — the
+   multimodal thesis is not supported by this data window.
+2. **The economic backtest does not beat buy-and-hold** on this window:
+   strategy Sharpe 0.56 vs 0.74, total return 1.49 vs 4.35, max-drawdown
+   −0.37 vs −0.34. The leakage-free threshold (calibrated on first-half OOS,
+   evaluated on second-half) is deployable, but it doesn't add alpha here.
+3. The **RandomForest's Brier skill is technically still negative** (−0.0015),
+   not positive — only the linear models clear the +0 line. That tighter
+   uncertainty is recorded faithfully in the artifact.
+
+*Why might a deeper run show stronger numbers?* A longer real-data window —
+intraday-level VIX, options-surface feeds (`^VIX9D` / `^SKEW`), the full
+high-yield OAS history from FRED — pushes Brier skill higher and would
+plausibly carry the RF positive. Those feeds aren't bundled in the offline
+cache; see [`docs/EDGE_AND_MULTIMODAL_RESULTS.md`](docs/EDGE_AND_MULTIMODAL_RESULTS.md)
+for what's been tried.
 
 The one result that **survives** rigorous scrutiny end-to-end: our daily
 **Financial Stress Index reproduces the St. Louis Fed's published STLFSI at
@@ -203,7 +226,7 @@ probability calibration · honest baselines · economic backtest.
 ## Testing & CI
 
 ```bash
-make test             # full pytest suite — 80 tests collected (live count: CI badge above)
+make test             # full pytest suite — 82 tests collected (live count: CI badge above)
 ```
 
 The suite is **unit + integration**:
@@ -229,7 +252,11 @@ a scikit-learn version drift and a latent `NameError` that local runs missed.)
 - `requirements.lock` pins the exact versions behind every reported number.
 - `fred_data.csv` is a committed FRED snapshot so the pipeline runs without an API key.
 - All randomness is seeded (`config.yaml: seed`).
-- `make demo` reproduces the headline artifacts in ~30 s.
+- `python scripts/v3_run.py` reproduces every number in the honest-headline
+  table above and writes them to `outputs/v3_metrics.json` (~1–2 min on real
+  S&P 500 + VIX). `make demo` runs the **v2** pipeline end-to-end on synthetic
+  data in ~30 s — useful as a smoke test, but its F1 ≈ 1.0 is the circular
+  in-sample number, not a headline result.
 
 ---
 

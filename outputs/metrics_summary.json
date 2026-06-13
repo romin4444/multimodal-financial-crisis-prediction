@@ -1,313 +1,45 @@
 {
-  "best_garch": "EGARCH(1,1)",
-  "best_garch_bic": 22782.12,
-  "best_garch_aic": 22732.53,
-  "best_garch_lb_p": 0.03722716395284527,
-  "best_garch_arch_p": 0.48057404651864244,
-  "all_garch_results": [
-    {
-      "label": "GARCH(1,1)",
-      "bic": 23046.37,
-      "aic": 23003.87,
-      "lb_p": 0.0074,
-      "arch_p": 0.1721,
-      "converged": true
-    },
-    {
-      "label": "GJR-GARCH(1,1)",
-      "bic": 22823.13,
-      "aic": 22773.55,
-      "lb_p": 0.0257,
-      "arch_p": 0.6675,
-      "converged": true
-    },
-    {
-      "label": "EGARCH(1,1)",
-      "bic": 22782.12,
-      "aic": 22732.53,
-      "lb_p": 0.0372,
-      "arch_p": 0.4806,
-      "converged": true
-    }
-  ],
+  "best_garch": "GARCH(1,1)",
+  "best_garch_bic": 27338.17,
   "hmm_n_retained": 3,
   "hmm_bic_profile": {
-    "2": 32484.6,
-    "3": 21169.9,
-    "4": 14940.09
-  },
-  "hmm_ll_profile": {
-    "2": -16101.53,
-    "3": -10357.9,
-    "4": -7147.64
+    "2": 13059.07,
+    "3": 5755.85,
+    "4": 4757.91
   },
   "fsi_validity": {
-    "nber_pointbiserial_r": 0.463,
-    "nber_roc_auc": 0.8613,
-    "stlfsi_r": 0.8229,
-    "target_met": "True"
+    "nber_pointbiserial_r": 0.429,
+    "nber_roc_auc": 0.7609,
+    "stlfsi_r": 0.6734,
+    "target_met": true
   },
-  "fsi_target_correlation": 0.6,
   "lead_lag": {
     "overall": {
       "peak_lag": 0,
-      "peak_r": 0.542,
-      "ci_lo": 0.0,
-      "ci_hi": 0.0,
+      "peak_r": 0.2343,
       "interp": "Contemporaneous (peak lag = 0)"
     },
     "GFC_2008": {
-      "peak_lag": 9,
-      "peak_r": 0.7722,
-      "ci_lo": 0.0,
-      "ci_hi": 1.0,
-      "interp": "Sentiment LEADS price-regime by 9 trading days"
+      "peak_lag": -29,
+      "peak_r": -0.2416,
+      "interp": "Price-regime LEADS sentiment by 29 trading days"
     },
     "COVID_2020": {
-      "peak_lag": 5,
-      "peak_r": 0.8346,
-      "ci_lo": 0.0,
-      "ci_hi": 1.0,
-      "interp": "Sentiment LEADS price-regime by 5 trading days"
+      "peak_lag": 4,
+      "peak_r": 0.8028,
+      "interp": "Sentiment LEADS price-regime by 4 trading days"
     },
     "Inflation_2022": {
-      "peak_lag": 0,
-      "peak_r": 0.7696,
-      "ci_lo": 0.0,
-      "ci_hi": 0.0,
-      "interp": "Contemporaneous (peak lag = 0)"
+      "peak_lag": 12,
+      "peak_r": 0.6446,
+      "interp": "Sentiment LEADS price-regime by 12 trading days"
     }
   },
-  "granger_causality": [
-    {
-      "lag": 1,
-      "f_stat": 24.5151,
-      "p_value": 0.0,
-      "significant": true
-    },
-    {
-      "lag": 2,
-      "f_stat": 21.0986,
-      "p_value": 0.0,
-      "significant": true
-    },
-    {
-      "lag": 3,
-      "f_stat": 7.2132,
-      "p_value": 0.0001,
-      "significant": true
-    },
-    {
-      "lag": 4,
-      "f_stat": 5.4024,
-      "p_value": 0.0002,
-      "significant": true
-    },
-    {
-      "lag": 5,
-      "f_stat": 4.3951,
-      "p_value": 0.0005,
-      "significant": true
-    },
-    {
-      "lag": 6,
-      "f_stat": 3.6708,
-      "p_value": 0.0012,
-      "significant": true
-    },
-    {
-      "lag": 7,
-      "f_stat": 3.9237,
-      "p_value": 0.0003,
-      "significant": true
-    },
-    {
-      "lag": 8,
-      "f_stat": 3.9029,
-      "p_value": 0.0001,
-      "significant": true
-    },
-    {
-      "lag": 9,
-      "f_stat": 3.6824,
-      "p_value": 0.0001,
-      "significant": true
-    },
-    {
-      "lag": 10,
-      "f_stat": 3.8735,
-      "p_value": 0.0,
-      "significant": true
-    }
-  ],
   "fusion_best_f1_by_crisis": {
-    "GFC_2008": 0.9931,
-    "COVID_2020": 0.9565,
-    "Inflation_2022": 0.8642
+    "GFC_2008": 0.9764,
+    "COVID_2020": 0.8837,
+    "Inflation_2022": 0.936
   },
   "fusion_f1_target": 0.7,
-  "fusion_evaluations": {
-    "GFC_2008": [
-      {
-        "model": "Logistic Regression",
-        "f1": 0.9826,
-        "precision": 1.0,
-        "recall": 0.9658,
-        "auc": NaN,
-        "n": 146,
-        "pos": 146,
-        "threshold": 0.7385244677445519
-      },
-      {
-        "model": "Random Forest",
-        "f1": 0.9931,
-        "precision": 1.0,
-        "recall": 0.9863,
-        "auc": NaN,
-        "n": 146,
-        "pos": 146,
-        "threshold": 0.30282686726480107
-      },
-      {
-        "model": "Gradient Boosting",
-        "f1": 0.9931,
-        "precision": 1.0,
-        "recall": 0.9863,
-        "auc": NaN,
-        "n": 146,
-        "pos": 146,
-        "threshold": 0.11415323804586212
-      }
-    ],
-    "COVID_2020": [
-      {
-        "model": "Logistic Regression",
-        "f1": 0.9333,
-        "precision": 1.0,
-        "recall": 0.875,
-        "auc": NaN,
-        "n": 24,
-        "pos": 24,
-        "threshold": 0.7385244677445519
-      },
-      {
-        "model": "Random Forest",
-        "f1": 0.9565,
-        "precision": 1.0,
-        "recall": 0.9167,
-        "auc": NaN,
-        "n": 24,
-        "pos": 24,
-        "threshold": 0.30282686726480107
-      },
-      {
-        "model": "Gradient Boosting",
-        "f1": 0.9565,
-        "precision": 1.0,
-        "recall": 0.9167,
-        "auc": NaN,
-        "n": 24,
-        "pos": 24,
-        "threshold": 0.11415323804586212
-      }
-    ],
-    "Inflation_2022": [
-      {
-        "model": "Logistic Regression",
-        "f1": 0.8642,
-        "precision": 0.8607,
-        "recall": 0.8678,
-        "auc": 0.885,
-        "n": 209,
-        "pos": 121,
-        "threshold": 0.7385244677445519
-      },
-      {
-        "model": "Random Forest",
-        "f1": 0.8517,
-        "precision": 0.7887,
-        "recall": 0.9256,
-        "auc": 0.9148,
-        "n": 209,
-        "pos": 121,
-        "threshold": 0.30282686726480107
-      },
-      {
-        "model": "Gradient Boosting",
-        "f1": 0.8571,
-        "precision": 0.8043,
-        "recall": 0.9174,
-        "auc": 0.9157,
-        "n": 209,
-        "pos": 121,
-        "threshold": 0.11415323804586212
-      }
-    ]
-  },
-  "wang2025_benchmark": [
-    {
-      "Crisis": "GFC_2008",
-      "Period": "2008-09-01 \u2192 2009-03-31",
-      "Detected": "\u2705",
-      "First_crisis_state": "2008-07-10",
-      "Lead_trading_days": 37.0,
-      "By_onset_plus_10td": "\u2705"
-    },
-    {
-      "Crisis": "COVID_2020",
-      "Period": "2020-02-19 \u2192 2020-03-23",
-      "Detected": "\u2705",
-      "First_crisis_state": "2020-02-26",
-      "Lead_trading_days": -5.0,
-      "By_onset_plus_10td": "\u2705"
-    },
-    {
-      "Crisis": "Inflation_2022",
-      "Period": "2022-01-01 \u2192 2022-10-31",
-      "Detected": "\u274c",
-      "First_crisis_state": "N/A",
-      "Lead_trading_days": NaN,
-      "By_onset_plus_10td": "\u274c"
-    }
-  ],
-  "validation_checklist": [
-    {
-      "Crisis": "GFC_2008",
-      "Period": "2008-09-01 \u2192 2009-03-31",
-      "Req1_HMM_detection": "\u2705",
-      "First_detected": "2008-07-10",
-      "Lead_td": 37,
-      "Req2_Panic_before": "\u274c",
-      "Best_F1": "0.9931",
-      "Req3_F1_target": "\u2705",
-      "All_pass": "\u274c"
-    },
-    {
-      "Crisis": "COVID_2020",
-      "Period": "2020-02-19 \u2192 2020-03-23",
-      "Req1_HMM_detection": "\u2705",
-      "First_detected": "2020-02-26",
-      "Lead_td": -5,
-      "Req2_Panic_before": "\u2705",
-      "Best_F1": "0.9565",
-      "Req3_F1_target": "\u2705",
-      "All_pass": "\u2705"
-    },
-    {
-      "Crisis": "Inflation_2022",
-      "Period": "2022-01-01 \u2192 2022-10-31",
-      "Req1_HMM_detection": "\u274c",
-      "First_detected": "\u2014",
-      "Lead_td": "\u2014",
-      "Req2_Panic_before": "\u2705",
-      "Best_F1": "0.8642",
-      "Req3_F1_target": "\u2705",
-      "All_pass": "\u274c"
-    }
-  ],
-  "data_source": {
-    "market": "yfinance (REAL S&P 500 + VIX 1990-2024)",
-    "fred": "REAL FRED (cached fred_data.csv)",
-    "sentiment": "Synthetic VIX-based proxy (FinBERT skipped)"
-  }
+  "data_source": "SYNTHETIC (demo run)"
 }
