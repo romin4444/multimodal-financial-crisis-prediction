@@ -74,10 +74,10 @@ def main() -> dict:
     print(f"[3] Train {idx[0].date()}->{idx[cut-1].date()} | Test {idx[cut].date()}->{idx[-1].date()}")
 
     print("\n[4] Out-of-sample hazard evaluation:\n")
-    # v3.3: report BOTH the raw 1-(1-h)^N risk AND the isotonic-calibrated
-    # version so the calibration uplift is plain.
-    print(f"  {'Horizon':>8} {'C-index':>9} {'BaseRate':>9} {'BSS_raw':>9} {'BSS_cal':>9}")
-    print("  " + "-" * 56)
+    # v3.4: report BOTH the raw 1-(1-h)^N risk AND the calibrated version, plus
+    # which calibrator survived the do-no-harm guard ("identity" = raw was best).
+    print(f"  {'Horizon':>8} {'C-index':>9} {'BaseRate':>9} {'BSS_raw':>9} {'BSS_cal':>9} {'Method':>14}")
+    print("  " + "-" * 72)
     results = {}
     feature_cols_used: list[str] = []
     for h in HORIZONS:
@@ -97,7 +97,8 @@ def main() -> dict:
         print(f"  {h:>8} {str(m.get('c_index')):>9} "
               f"{str(m.get('Nday_base_rate')):>9} "
               f"{str(m.get('Nday_risk_brier_skill_raw')):>9} "
-              f"{str(m.get('Nday_risk_brier_skill_calibrated')):>9}")
+              f"{str(m.get('Nday_risk_brier_skill_calibrated')):>9} "
+              f"{str(m.get('calib_method')):>14}")
 
     from src.json_utils import safe_json_default
     out = {
@@ -105,7 +106,7 @@ def main() -> dict:
         "drawdown_threshold": DD_THRESHOLD,
         "n_onsets": n_onsets,
         "feature_cols": feature_cols_used,
-        "calibration": "isotonic on held-out 20% of train mask (per horizon)",
+        "calibration": "v3.4: Platt/sigmoid on time-series OOF incidence + do-no-harm guard (falls back to raw)",
         "results": results,
     }
     with open(cfg.paths.output_dir / "hazard_metrics.json", "w") as fh:

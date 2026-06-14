@@ -211,12 +211,17 @@ def build_weights(spy, vix, cfg, target_ann_vol):
     # (e) CRITICAL: shift weights by 1 day. Position decided at close of t is
     #     held over t+1. This is what makes the backtest leakage-free.
     w_held = w.shift(1).fillna(0.0)
-    return ret, w_held
+    # Stress is also shift(1)'d so any regime-conditional reporting aligns with
+    # the position actually held over the next day — same leakage rule.
+    return ret, w_held, stress.shift(1).fillna(0.0)
 
 
-def backtest(ret, w_held, cfg):
+def backtest(ret, w_held, cfg, cost_bps=None):
+    """Vector backtest. ``cost_bps`` overrides ``cfg['cost_bps']`` when supplied —
+    used by the cost-grid (§2.5 sensitivity) without mutating the global config."""
+    bps = cfg["cost_bps"] if cost_bps is None else cost_bps
     turnover = w_held.diff().abs().fillna(w_held.abs())
-    cost = turnover * (cfg["cost_bps"] / 1e4)
+    cost = turnover * (bps / 1e4)
     strat = w_held * ret - cost
     bh = ret.copy()                                    # buy & hold = 100% always
     return pd.DataFrame({"strat": strat, "bh": bh, "w": w_held,
@@ -314,7 +319,97 @@ def deflated_sharpe(selected_ret, sr_trials_per_period, n_trials):
 
 
 # ----------------------------------------------------------------------------- #
-# 7. Main
+# 7. §2.5 — Regime-conditional / cost-grid / exposure-path reporting
+# ----------------------------------------------------------------------------- #
+def regime_conditional(strat, bh, stress, td=252):
+    """Split the joint return panel by stress tercile (computed at the same
+    leakage-free shift used by ``build_weights``) and report Sharpe + max-DD per
+    tercile. The overlay's economic case lives in the TOP tercile — the days a
+    risk desk actually cares about. The middle/bottom report is the honest
+    counter-evidence (where the overlay can only cost performance)."""
+    # Use only days where stress has values (drop the early warm-up NaNs).
+    valid = stress.notna() & strat.notna() & bh.notna()
+    s, b, z = strat[valid], bh[valid], stress[valid]
+    if len(z) < 60:
+        return {"note": "insufficient days for tercile split"}
+    q33, q67 = float(z.quantile(1.0 / 3)), float(z.quantile(2.0 / 3))
+    out = {"q33": q33, "q67": q67}
+    for name, mask in [
+        ("bottom", z <= q33),
+        ("middle", (z > q33) & (z <= q67)),
+        ("top",    z > q67),
+    ]:
+        n_days = int(mask.sum())
+        if n_days < 20:
+            out[name] = {"n_days": n_days, "note": "too few days"}
+            continue
+        ms = perf(s[mask].to_numpy(), td)
+        mb = perf(b[mask].to_numpy(), td)
+        out[name] = {
+            "n_days": n_days,
+            "strat_sharpe": ms["sharpe"], "strat_maxdd": ms["maxdd"],
+            "bh_sharpe":    mb["sharpe"], "bh_maxdd":    mb["maxdd"],
+            "sharpe_edge":  ms["sharpe"] - mb["sharpe"],
+            "maxdd_reduction_pp": (abs(mb["maxdd"]) - abs(ms["maxdd"])) * 100,
+        }
+    return out
+
+
+def cost_grid(spy, vix, cfg, target_ann_vol, cost_bps_grid=(2.0, 5.0, 10.0)):
+    """Re-price the selected overlay at higher transaction costs. The drawdown
+    claim is the deployable one (§2.5); we want a reader to see it survives a
+    realistic broker fee + spread regime, not only a quoted-edge 2 bps."""
+    ret, w_held, _ = build_weights(spy, vix, cfg, target_ann_vol)
+    rows = []
+    for bps in cost_bps_grid:
+        bt_c = backtest(ret, w_held, cfg, cost_bps=bps)
+        m_s = perf(bt_c["strat"], cfg["trading_days"])
+        m_b = perf(bt_c["bh"],    cfg["trading_days"])
+        rows.append({
+            "cost_bps": float(bps),
+            "strat_cagr": m_s["cagr"], "strat_sharpe": m_s["sharpe"],
+            "strat_maxdd": m_s["maxdd"],
+            "bh_cagr":   m_b["cagr"], "bh_sharpe":   m_b["sharpe"],
+            "bh_maxdd":  m_b["maxdd"],
+            "sharpe_edge": m_s["sharpe"] - m_b["sharpe"],
+            "maxdd_reduction_pp": (abs(m_b["maxdd"]) - abs(m_s["maxdd"])) * 100,
+        })
+    return rows
+
+
+def exposure_path_stats(w_held, low_threshold=0.5):
+    """First-class exposure-path metrics — the risk-committee questions:
+    how often and for how long does the overlay de-risk? Reports the share of
+    days below ``low_threshold`` exposure and the longest contiguous run of
+    such days (a proxy for sustained risk-off periods)."""
+    w = w_held.dropna().to_numpy()
+    if len(w) == 0:
+        return {"note": "no exposure data"}
+    low = w < low_threshold
+    # Longest run of consecutive low-exposure days, vectorized.
+    if low.any():
+        # Identify run boundaries by where the boolean flips.
+        flips = np.diff(np.concatenate([[0], low.view(np.int8), [0]]))
+        starts = np.where(flips == 1)[0]
+        ends = np.where(flips == -1)[0]
+        max_run = int((ends - starts).max())
+        n_episodes = int(len(starts))
+    else:
+        max_run = 0
+        n_episodes = 0
+    return {
+        "low_exposure_threshold": float(low_threshold),
+        "share_days_low_exposure": float(low.mean()),
+        "max_consecutive_low_exposure_days": max_run,
+        "n_low_exposure_episodes": n_episodes,
+        "exposure_p10": float(np.quantile(w, 0.10)),
+        "exposure_p50": float(np.quantile(w, 0.50)),
+        "exposure_p90": float(np.quantile(w, 0.90)),
+    }
+
+
+# ----------------------------------------------------------------------------- #
+# 8. Main
 # ----------------------------------------------------------------------------- #
 def main():
     cfg = CFG
@@ -324,7 +419,7 @@ def main():
     # --- grid search over vol targets (these are the DSR "trials") -------------
     grid_sharpes_pp = []
     for tv in cfg["vol_target_grid"]:
-        ret_g, w_g = build_weights(spy, vix, cfg, tv)
+        ret_g, w_g, _ = build_weights(spy, vix, cfg, tv)
         bt_g = backtest(ret_g, w_g, cfg)
         grid_sharpes_pp.append(_sharpe_per_period(bt_g["strat"]))
     best_i = int(np.argmax(grid_sharpes_pp))
@@ -333,7 +428,7 @@ def main():
           f"(per-period Sharpe={grid_sharpes_pp[best_i]:.4f})")
 
     # --- evaluate the selected config -----------------------------------------
-    ret, w_held = build_weights(spy, vix, cfg, best_tv)
+    ret, w_held, stress = build_weights(spy, vix, cfg, best_tv)
     # leakage assertion: today's weight must not use today's return
     assert w_held.index.equals(ret.index), "alignment error"
     bt = backtest(ret, w_held, cfg)
@@ -345,6 +440,14 @@ def main():
 
     ci = bootstrap_ci(bt["strat"], bt["bh"], cfg)
     dsr = deflated_sharpe(bt["strat"], grid_sharpes_pp, n_trials=len(cfg["vol_target_grid"]))
+
+    # §2.5 additions (roadmap): regime-conditional report, cost-grid sensitivity,
+    # exposure-path stats. These do not change the headline numbers — they
+    # answer the risk-committee questions the headline alone can't.
+    regime = regime_conditional(bt["strat"], bt["bh"], stress.reindex(bt.index),
+                                cfg["trading_days"])
+    cost_rows = cost_grid(spy, vix, cfg, best_tv, cost_bps_grid=(2.0, 5.0, 10.0))
+    expo = exposure_path_stats(bt["w"])
 
     # --- report ----------------------------------------------------------------
     def row(name, m):
@@ -379,6 +482,28 @@ def main():
     print("  a significant drawdown reduction is the deployable one.")
     print("=" * 78)
 
+    # --- §2.5 — regime / cost / exposure (the risk-committee view) -------------
+    if "top" in regime and isinstance(regime["top"], dict) and "sharpe_edge" in regime["top"]:
+        rt = regime["top"]
+        print("\n  --- Regime-conditional (top stress tercile) ---")
+        print(f"  Days in top tercile: {rt['n_days']:,}  | overlay Sharpe edge "
+              f"{rt['sharpe_edge']:+.2f} | DD reduction {rt['maxdd_reduction_pp']:+.2f}pp")
+
+    print("\n  --- Cost-grid sensitivity ---")
+    print(f"  {'cost (bps)':>10}  {'overlay CAGR':>13}  {'overlay MaxDD':>14}  "
+          f"{'DD reduction':>13}")
+    for row_ in cost_rows:
+        print(f"  {row_['cost_bps']:>10.1f}  {row_['strat_cagr']*100:>12.2f}%  "
+              f"{row_['strat_maxdd']*100:>13.2f}%  "
+              f"{row_['maxdd_reduction_pp']:>12.2f}pp")
+
+    if "share_days_low_exposure" in expo:
+        print(f"\n  --- Exposure path (low = w < {expo['low_exposure_threshold']:.0%}) ---")
+        print(f"  Days low-exposure: {expo['share_days_low_exposure']*100:.1f}%   "
+              f"| longest run: {expo['max_consecutive_low_exposure_days']}d   "
+              f"| {expo['n_low_exposure_episodes']} episodes")
+    print("=" * 78)
+
     # --- figure -----------------------------------------------------------------
     eq_strat = np.exp(bt["strat"].cumsum())
     eq_bh = np.exp(bt["bh"].cumsum())
@@ -408,6 +533,10 @@ def main():
         n_days=int(len(bt)), avg_exposure=avg_exposure, ann_turnover=ann_turnover,
         buy_and_hold=m_bh, risk_overlay=m_strat,
         bootstrap=ci, deflated_sharpe=dsr,
+        # §2.5 additions — additive, do not break the existing schema.
+        regime_conditional=regime,
+        cost_grid=cost_rows,
+        exposure_path=expo,
     )
     json_path = out_dir / "risk_overlay_results.json"
     with open(json_path, "w") as fh:

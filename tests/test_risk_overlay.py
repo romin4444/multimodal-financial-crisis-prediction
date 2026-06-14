@@ -34,7 +34,7 @@ class TestCausalWeights:
 
     def test_weight_held_is_shifted_by_one_day(self):
         spy, vix = _synthetic_spy_vix()
-        ret, w_held = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
+        ret, w_held, _ = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
         # The first day must have w_held = 0 (no prior info to set a weight).
         assert w_held.iloc[0] == 0.0
         # And w_held must align day-for-day with ret.
@@ -44,7 +44,7 @@ class TestCausalWeights:
         """The single sharpest causality test: change tomorrow's price, today's
         weight must be byte-identical to the unperturbed case."""
         spy, vix = _synthetic_spy_vix()
-        _, w_clean = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
+        _, w_clean, _ = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
 
         # Pick a day in the middle of the series with a well-defined weight.
         t = 1000
@@ -56,7 +56,7 @@ class TestCausalWeights:
         spy_perturbed.iloc[t + 1:] *= 0.5  # 50% crash, repeatedly
         vix_perturbed.iloc[t + 1:] = 80.0  # max-stress VIX everywhere after t
 
-        _, w_perturbed = ro.build_weights(
+        _, w_perturbed, _ = ro.build_weights(
             spy_perturbed, vix_perturbed, ro.CFG, target_ann_vol=0.12
         )
 
@@ -70,7 +70,7 @@ class TestCausalWeights:
     def test_weights_are_bounded(self):
         """Vol-targeting + risk-off must respect the [w_min, w_max] hard cap."""
         spy, vix = _synthetic_spy_vix()
-        _, w_held = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
+        _, w_held, _ = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
         assert (w_held >= ro.CFG["w_min"] - 1e-12).all()
         assert (w_held <= ro.CFG["w_max"] + 1e-12).all()
 
@@ -81,7 +81,7 @@ class TestBootstrapReproducibility:
 
     def test_same_seed_same_ci(self):
         spy, vix = _synthetic_spy_vix()
-        ret, w_held = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
+        ret, w_held, _ = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
         bt = ro.backtest(ret, w_held, ro.CFG)
         # Smaller B for speed — we're testing reproducibility, not precision.
         cfg = {**ro.CFG, "bootstrap_B": 200}
@@ -138,6 +138,12 @@ class TestSmokeEndToEnd:
         assert results["n_days"] > 1000
         assert "buy_and_hold" in results and "risk_overlay" in results
         assert "bootstrap" in results and "deflated_sharpe" in results
+        # §2.5 additions: regime / cost / exposure must round-trip cleanly.
+        assert "regime_conditional" in results
+        assert "cost_grid" in results and len(results["cost_grid"]) >= 2
+        for row in results["cost_grid"]:
+            assert {"cost_bps", "strat_maxdd", "maxdd_reduction_pp"} <= row.keys()
+        assert "exposure_path" in results
 
         # JSON artifact must exist and be re-loadable.
         import json
@@ -156,7 +162,7 @@ class TestEMHConsistency:
 
     def test_per_period_sharpe_is_modest(self):
         spy, vix = _synthetic_spy_vix()
-        ret, w_held = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
+        ret, w_held, _ = ro.build_weights(spy, vix, ro.CFG, target_ann_vol=0.12)
         bt = ro.backtest(ret, w_held, ro.CFG)
         sharpe_pp = ro._sharpe_per_period(bt["strat"])
         # On synthetic data with our crisis-injected dynamics, a per-period
