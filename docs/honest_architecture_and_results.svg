@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" font-family="ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+  <defs>
+    <style>
+      .bg{fill:#FAFAF7}
+      .title{font-size:22px;font-weight:600;fill:#1A1A17}
+      .sub{font-size:12.5px;fill:#6B6B63}
+      .stage{font-size:11px;font-weight:600;fill:#6B6B63;letter-spacing:.06em}
+      .box{fill:#FFFFFF;stroke:#E3E3DC;stroke-width:1;rx:8}
+      .boxlbl{font-size:13px;font-weight:600;fill:#1A1A17}
+      .boxsub{font-size:10.5px;fill:#6B6B63}
+      .harness{fill:#EAF4EF;stroke:#1D9E75;stroke-width:1.2}
+      .arrow{stroke:#9A9A90;stroke-width:1.4;fill:none;marker-end:url(#ah)}
+      .pass{fill:#0F6E56;font-size:11px;font-weight:600}
+      .null{fill:#993C1D;font-size:11px;font-weight:600}
+      .resval{font-size:13px;font-weight:600;fill:#1A1A17}
+      .reslbl{font-size:11.5px;fill:#3A3A35}
+      .pill-pass{fill:#E1F5EE;stroke:#1D9E75;stroke-width:.8}
+      .pill-null{fill:#FAECE7;stroke:#D85A30;stroke-width:.8}
+      .divider{stroke:#E3E3DC;stroke-width:1}
+    </style>
+    <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9A9A90"/></marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1000" height="720"/>
+  <text class="title" x="40" y="46">FCPS — multimodal crisis pipeline &amp; honest out-of-sample results</text>
+  <text class="sub" x="40" y="68">Real S&amp;P 500 + VIX (1990–2024) · purged/embargoed walk-forward · calibrated probabilities · block-bootstrap significance</text>
+
+  <!-- ===================== ARCHITECTURE ===================== -->
+  <text class="stage" x="40" y="104">DATA SOURCES</text>
+  <text class="stage" x="300" y="104">FEATURE STREAMS</text>
+  <text class="stage" x="600" y="104">FUSION + HONEST HARNESS</text>
+  <text class="stage" x="840" y="104">OUTPUTS</text>
+
+  <!-- data sources -->
+  <g>
+    <rect class="box" x="40" y="116" width="200" height="44" rx="8"/>
+    <text class="boxlbl" x="52" y="138">yfinance</text><text class="boxsub" x="52" y="152">S&amp;P 500 + VIX, daily</text>
+    <rect class="box" x="40" y="170" width="200" height="44" rx="8"/>
+    <text class="boxlbl" x="52" y="192">FRED</text><text class="boxsub" x="52" y="206">STLFSI, credit, fed funds, curve</text>
+    <rect class="box" x="40" y="224" width="200" height="44" rx="8"/>
+    <text class="boxlbl" x="52" y="246">News corpus</text><text class="boxsub" x="52" y="260">FinBERT sentiment (real)</text>
+  </g>
+
+  <!-- feature streams -->
+  <g>
+    <rect class="box" x="300" y="116" width="220" height="40" rx="8"/>
+    <text class="boxlbl" x="312" y="135">Price / volatility</text><text class="boxsub" x="312" y="149">vol, drawdown, momentum, VIX</text>
+    <rect class="box" x="300" y="162" width="220" height="40" rx="8"/>
+    <text class="boxlbl" x="312" y="181">HMM regime (causal)</text><text class="boxsub" x="312" y="195">3-state, filtered posteriors</text>
+    <rect class="box" x="300" y="208" width="220" height="40" rx="8"/>
+    <text class="boxlbl" x="312" y="227">GARCH vol</text><text class="boxsub" x="312" y="241">EGARCH(1,1), BIC-selected</text>
+    <rect class="box" x="300" y="254" width="220" height="40" rx="8"/>
+    <text class="boxlbl" x="312" y="273">Macro (VIX-orthogonal)</text><text class="boxsub" x="312" y="287">yield slope, credit, fed funds</text>
+    <rect class="box" x="300" y="300" width="220" height="40" rx="8"/>
+    <text class="boxlbl" x="312" y="319">Sentiment + Wang network</text><text class="boxsub" x="312" y="333">FinBERT fear · topology features</text>
+  </g>
+
+  <!-- fusion + harness -->
+  <rect class="harness" x="600" y="116" width="210" height="217" rx="10"/>
+  <text class="boxlbl" x="616" y="140" fill="#0F6E56">Early-fusion classifier</text>
+  <text class="boxsub" x="616" y="156">LR · RandomForest · GB</text>
+  <line class="divider" x1="616" y1="168" x2="794" y2="168"/>
+  <text class="boxsub" x="616" y="186">exogenous 21d / 10% DD label</text>
+  <text class="boxsub" x="616" y="203">purged + embargoed walk-forward</text>
+  <text class="boxsub" x="616" y="220">isotonic / sigmoid-OOF calibration</text>
+  <text class="boxsub" x="616" y="237">block-bootstrap vs VIX baseline</text>
+  <text class="boxsub" x="616" y="254">+ discrete-time hazard model</text>
+  <text class="boxsub" x="616" y="271">+ risk overlay (vol-target)</text>
+  <text class="boxsub" x="616" y="288">+ FSI nowcast validation</text>
+  <text class="boxsub" x="616" y="305">93 tests · CI · ruff</text>
+
+  <!-- outputs -->
+  <g>
+    <rect class="box" x="840" y="130" width="130" height="36" rx="8"/><text class="boxsub" x="852" y="152">v3_metrics.json</text>
+    <rect class="box" x="840" y="172" width="130" height="36" rx="8"/><text class="boxsub" x="852" y="194">hazard_metrics.json</text>
+    <rect class="box" x="840" y="214" width="130" height="36" rx="8"/><text class="boxsub" x="852" y="236">risk_overlay.json</text>
+    <rect class="box" x="840" y="256" width="130" height="36" rx="8"/><text class="boxsub" x="852" y="278">8 figures (PNG)</text>
+  </g>
+
+  <!-- arrows -->
+  <path class="arrow" d="M240,138 L298,136"/>
+  <path class="arrow" d="M240,192 L298,182"/>
+  <path class="arrow" d="M240,246 L298,320"/>
+  <path class="arrow" d="M240,192 L298,228"/>
+  <path class="arrow" d="M240,192 L298,274"/>
+  <path class="arrow" d="M520,136 L598,180"/>
+  <path class="arrow" d="M520,182 L598,200"/>
+  <path class="arrow" d="M520,228 L598,220"/>
+  <path class="arrow" d="M520,274 L598,235"/>
+  <path class="arrow" d="M520,320 L598,255"/>
+  <path class="arrow" d="M810,200 L838,180"/>
+  <path class="arrow" d="M810,220 L838,232"/>
+
+  <line class="divider" x1="40" y1="370" x2="960" y2="370"/>
+
+  <!-- ===================== HONEST RESULTS ===================== -->
+  <text class="stage" x="40" y="398">WHAT SURVIVES OUT-OF-SAMPLE SCRUTINY  (data-backed)</text>
+
+  <!-- PASS cards -->
+  <g>
+    <rect class="pill-pass" x="40" y="412" width="290" height="74" rx="9"/>
+    <text class="reslbl" x="56" y="434">FSI nowcast vs Fed STLFSI</text>
+    <text class="resval" x="56" y="460">r ≈ 0.80 · NBER AUC 0.86</text>
+    <text class="pass" x="56" y="478">✓ strongest result, stable across runs</text>
+
+    <rect class="pill-pass" x="355" y="412" width="290" height="74" rx="9"/>
+    <text class="reslbl" x="371" y="434">Hazard onset ranking</text>
+    <text class="resval" x="371" y="460">C-index 0.862 · raw BSS +0.077 (21d)</text>
+    <text class="pass" x="371" y="478">✓ ranks risk; do-no-harm calibration</text>
+
+    <rect class="pill-pass" x="670" y="412" width="290" height="74" rx="9"/>
+    <text class="reslbl" x="686" y="434">Risk overlay (drawdown)</text>
+    <text class="resval" x="686" y="460">max-DD −55% → −37%  (−19pp)</text>
+    <text class="pass" x="686" y="478">✓ significant, p ≈ 0.0005</text>
+  </g>
+
+  <text class="stage" x="40" y="520">HONEST NULLS  (reported, not hidden — this is the project's goal)</text>
+
+  <!-- NULL cards -->
+  <g>
+    <rect class="pill-null" x="40" y="534" width="222" height="70" rx="9"/>
+    <text class="reslbl" x="56" y="556">Beat VIX on ranking</text>
+    <text class="resval" x="56" y="580">ML 0.147 vs VIX 0.167</text>
+    <text class="null" x="56" y="597">✗ ΔPR-AUC −0.02, not significant</text>
+
+    <rect class="pill-null" x="277" y="534" width="222" height="70" rx="9"/>
+    <text class="reslbl" x="293" y="556">Multimodal lift</text>
+    <text class="resval" x="293" y="580">macro / sentiment / network</text>
+    <text class="null" x="293" y="597">✗ each degrades PR-AUC</text>
+
+    <rect class="pill-null" x="514" y="534" width="222" height="70" rx="9"/>
+    <text class="reslbl" x="530" y="556">Sentiment leads price</text>
+    <text class="resval" x="530" y="580">real FinBERT: lag 0</text>
+    <text class="null" x="530" y="597">✗ Granger NS (synthetic artifact)</text>
+
+    <rect class="pill-null" x="751" y="534" width="209" height="70" rx="9"/>
+    <text class="reslbl" x="767" y="556">Short-horizon direction</text>
+    <text class="resval" x="767" y="580">edge vs always-up −0.05</text>
+    <text class="null" x="767" y="597">✗ weak-form EMH consistent</text>
+  </g>
+
+  <line class="divider" x1="40" y1="636" x2="960" y2="636"/>
+  <text class="sub" x="40" y="662" font-weight="600" fill="#1A1A17">Project goal:</text>
+  <text class="sub" x="120" y="662">measure the in-sample → out-of-sample gap honestly, then fix what is genuinely fixable without leakage or metric-gaming.</text>
+  <text class="sub" x="40" y="684">Reproduce: <tspan font-family="ui-monospace,monospace" fill="#3A3A35">python scripts/v3_run.py · hazard_run.py · risk_overlay_run.py · real_data_run.py</tspan></text>
+  <text class="sub" x="40" y="704" fill="#9A9A90">Numbers trace to outputs/MILESTONE5_FINDINGS.md · all real-data, real-FinBERT.</text>
+</svg>

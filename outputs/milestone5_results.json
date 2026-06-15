@@ -1,0 +1,234 @@
+{
+  "meta": {
+    "data_source": "REAL (yfinance SPY + ^VIX)",
+    "macro_source": "FRED (committed snapshot / API key)",
+    "sentiment": "REAL FinBERT on attached news corpus",
+    "label_summary": {
+      "n": 8814,
+      "n_positive": 346,
+      "base_rate": 0.0393
+    },
+    "sentiment_col": "fear_real",
+    "macro_cols": [
+      "yield_slope",
+      "yield_slope_chg_63",
+      "fedfunds_chg_126",
+      "oil_mom_63",
+      "xasset_corr"
+    ]
+  },
+  "ablation": {
+    "feature_groups": {
+      "price": [
+        "vol_21d",
+        "vix",
+        "drawdown_63",
+        "mom_21d",
+        "mom_63d",
+        "vix_spike",
+        "vol_ratio"
+      ],
+      "macro_vix_orthogonal": [
+        "yield_slope",
+        "yield_slope_chg_63",
+        "fedfunds_chg_126",
+        "oil_mom_63",
+        "xasset_corr"
+      ],
+      "online_regime": [
+        "o_prob_volatile",
+        "o_prob_crisis"
+      ],
+      "sentiment": [
+        "fear_real"
+      ]
+    },
+    "metrics": {
+      "BASELINE VIX-threshold": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.1668,
+        "roc_auc": 0.7456,
+        "brier": 0.3581,
+        "brier_skill": -7.2696,
+        "ece": 0.4923,
+        "lift_top_decile": 3.8131
+      },
+      "price": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.1469,
+        "roc_auc": 0.7493,
+        "brier": 0.1884,
+        "brier_skill": -3.35,
+        "ece": 0.3154,
+        "lift_top_decile": 3.8429
+      },
+      "price+macro": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.0909,
+        "roc_auc": 0.5879,
+        "brier": 0.2068,
+        "brier_skill": -3.7755,
+        "ece": 0.3065,
+        "lift_top_decile": 2.8896
+      },
+      "price+macro+online": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.0786,
+        "roc_auc": 0.6222,
+        "brier": 0.1948,
+        "brier_skill": -3.4985,
+        "ece": 0.2595,
+        "lift_top_decile": 2.413
+      },
+      "price+macro+online+sentiment": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.0803,
+        "roc_auc": 0.6227,
+        "brier": 0.1962,
+        "brier_skill": -3.5307,
+        "ece": 0.2603,
+        "lift_top_decile": 2.4726
+      },
+      "FINAL calibrated (full)": {
+        "n": 7407,
+        "base_rate": 0.0454,
+        "pr_auc": 0.0419,
+        "roc_auc": 0.4612,
+        "brier": 0.0833,
+        "brier_skill": -0.9232,
+        "ece": 0.0742,
+        "lift_top_decile": 0.2979
+      }
+    },
+    "paired_tests": {
+      "sentiment_marginal_vs_price_macro_online": {
+        "delta_prauc": 0.00169,
+        "ci95_lo": -0.00029,
+        "ci95_hi": 0.00546,
+        "p_delta_le_0": 0.056,
+        "n_oos_days": 7407,
+        "n_boot": 2000,
+        "significant_at_5pct": false
+      },
+      "best_ml_vs_vix_baseline": {
+        "delta_prauc": -0.01998,
+        "ci95_lo": -0.077,
+        "ci95_hi": 0.02402,
+        "p_delta_le_0": 0.7795,
+        "n_oos_days": 7407,
+        "n_boot": 2000,
+        "significant_at_5pct": false,
+        "best_ml_model": "price"
+      }
+    }
+  },
+  "hazard": {
+    "feature_cols": [
+      "vol_21d",
+      "vix",
+      "drawdown_63",
+      "mom_21d",
+      "yield_slope",
+      "yield_slope_chg_63",
+      "fedfunds_chg_126",
+      "oil_mom_63",
+      "xasset_corr"
+    ],
+    "horizons": {
+      "h21": {
+        "n": 2660,
+        "n_onsets": 33,
+        "c_index": 0.862,
+        "horizon": 21,
+        "Nday_base_rate": 0.1158,
+        "Nday_risk_brier_raw": 0.0946,
+        "Nday_risk_brier_skill_raw": 0.0766,
+        "Nday_risk_brier_calibrated": 0.0946,
+        "Nday_risk_brier_skill_calibrated": 0.0766,
+        "calibrated": true,
+        "calib_method": "identity",
+        "Nday_risk_brier": 0.0946,
+        "Nday_risk_brier_skill": 0.0766
+      },
+      "h63": {
+        "n": 2660,
+        "n_onsets": 33,
+        "c_index": 0.862,
+        "horizon": 63,
+        "Nday_base_rate": 0.2414,
+        "Nday_risk_brier_raw": 0.208,
+        "Nday_risk_brier_skill_raw": -0.1355,
+        "Nday_risk_brier_calibrated": 0.208,
+        "Nday_risk_brier_skill_calibrated": -0.1355,
+        "calibrated": true,
+        "calib_method": "identity",
+        "Nday_risk_brier": 0.208,
+        "Nday_risk_brier_skill": -0.1355
+      }
+    },
+    "hazard_ratios_per_1sd": [
+      {
+        "feature": "drawdown_63",
+        "coef_per_sd": -2.169,
+        "hazard_ratio_per_sd": 0.1143
+      },
+      {
+        "feature": "fedfunds_chg_126",
+        "coef_per_sd": -1.6598,
+        "hazard_ratio_per_sd": 0.1902
+      },
+      {
+        "feature": "yield_slope",
+        "coef_per_sd": -0.8625,
+        "hazard_ratio_per_sd": 0.4221
+      },
+      {
+        "feature": "duration",
+        "coef_per_sd": -0.4343,
+        "hazard_ratio_per_sd": 0.6477
+      },
+      {
+        "feature": "yield_slope_chg_63",
+        "coef_per_sd": -0.3644,
+        "hazard_ratio_per_sd": 0.6946
+      },
+      {
+        "feature": "mom_21d",
+        "coef_per_sd": 0.3561,
+        "hazard_ratio_per_sd": 1.4277
+      },
+      {
+        "feature": "xasset_corr",
+        "coef_per_sd": -0.1897,
+        "hazard_ratio_per_sd": 0.8272
+      },
+      {
+        "feature": "vol_21d",
+        "coef_per_sd": 0.1052,
+        "hazard_ratio_per_sd": 1.1109
+      },
+      {
+        "feature": "oil_mom_63",
+        "coef_per_sd": 0.0613,
+        "hazard_ratio_per_sd": 1.0633
+      },
+      {
+        "feature": "vix",
+        "coef_per_sd": -0.0601,
+        "hazard_ratio_per_sd": 0.9416
+      }
+    ]
+  },
+  "reliability_diagram": "outputs/reliability_diagram.png",
+  "config": {
+    "horizon": 21,
+    "dd_threshold": 0.1,
+    "bootstrap_B": 2000,
+    "block_len": 21
+  }
+}

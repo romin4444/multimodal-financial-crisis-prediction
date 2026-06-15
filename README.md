@@ -28,6 +28,12 @@ out-of-sample. This project's distinguishing feature is that it **measures and
 reports that gap instead of hiding it** — and then fixes what is genuinely
 fixable without cheating.
 
+> **Milestone 5 consolidated results:** see
+> [`outputs/MILESTONE5_FINDINGS.md`](outputs/MILESTONE5_FINDINGS.md) —
+> real-FinBERT ablation, hazard, risk overlay, FSI nowcast, and the Wang-network
+> reproduction null. Architecture + honest scorecard:
+> ![diagram](docs/honest_architecture_and_results.png)
+
 Every number below is from the committed [`outputs/v3_metrics.json`](outputs/v3_metrics.json)
 on the cached 1990–2024 S&P 500 + VIX window. Reproduce with `python scripts/v3_run.py`.
 
